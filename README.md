@@ -42,16 +42,16 @@ This dashboard supports Olist's Marketing team:
 
 ---
 
-## Data Structure Overview#
+## Data Structure Overview
 
-### Marketing Funnel Tables#
+### Marketing Funnel Tables
 
 | Table | Key Columns | Role |
 |-------|--------------|------|
 | `olist_marketing_qualified_leads_dataset` | mql_id, first_contact_date, origin, landing_page_id, lead_behavior_profile | Leads (MQLs) |
 | `olist_closed_deals_dataset` | mql_id, seller_id, won_date, business_segment, lead_type, lead_behavior_profile | Closed deals |
 
-### E-Commerce Tables (for LTV Calculation)#
+### E-Commerce Tables (for LTV Calculation)
 
 | Table | Role | Key Columns |
 |-------|------|-------------|
@@ -59,47 +59,65 @@ This dashboard supports Olist's Marketing team:
 | `fact_orders` | Revenue by seller | seller_id, revenue, order_date |
 | `dim_date` | Time slicing | date_key, year_month |
 
-### Combined Star Schema#
+### Combined Star Schema
 
-```
-                 ┌─────────────────┐
-                 │  dim_date       │
-                 │  date_key PK    │
-                 └────────┬────────┘
-                          │
-┌──────────────────┐ ┌────────▼────────┐ ┌──────────────────┐
-│ dim_marketing   │ │  fact_marketing │ │ dim_channel     │
-│ mql_id PK      │◄┤  mql_id FK     ├─►│ origin (PK)     │
-│ origin         │ │  seller_id FK  │ │ landing_page_id │
-│ lead_behavior  │ │  won_date      │ └──────────────────┘
-└──────────────────┘ │  lead_date    │
-                       └─────────────────┘
-                                │
-                       ┌────────▼────────┐
-                       │  fact_orders    │
-                       │  seller_id FK   │
-                       │  revenue        │
-                       └─────────────────┘
+```mermaid
+erDiagram
+    dim_date ||--o{ fact_marketing : "date_key FK"
+    dim_marketing ||--o{ fact_marketing : "mql_id FK"
+    dim_channel ||--o{ fact_marketing : "origin FK"
+    fact_marketing ||--o{ fact_orders : "seller_id FK"
+
+    dim_date {
+        int date_key PK
+        int year
+        int month
+    }
+
+    dim_marketing {
+        string mql_id PK
+        string origin
+        string lead_behavior_profile
+    }
+
+    dim_channel {
+        string origin PK
+        string landing_page_id
+    }
+
+    fact_marketing {
+        string mql_id FK
+        string seller_id FK
+        date won_date
+        date lead_date
+    }
+
+    fact_orders {
+        string order_id PK
+        string seller_id FK
+        float revenue
+    }
 ```
 
-### Data Pipeline#
+### Data Pipeline
 
+```mermaid
+flowchart LR
+    A[Marketing CSVs] --> B[load_marketing_data.py]
+    E[E-Commerce CSVs] --> C[load_data_v2.py]
+    B --> D[Raw Marketing Tables]
+    C --> F[Raw E-Commerce Tables]
+    D --> G[phase2_cleaning_eda.py]
+    F --> G
+    G --> H[Cleaned Data + Issues Log]
+    H --> I[phase3_starschema.py]
+    I --> J[Combined Star Schema]
+    J --> K[phase4_kpis.py]
+    K --> L[MQL Volume + LTV by Channel]
+    L --> M[phase5_funnel.py]
+    M --> N[Funnel + Lead Behavior]
+    N --> O[Power BI Dashboard]
 ```
-Marketing CSVs → load_marketing_data.py → Raw Marketing Tables
-                       ↓
-E-Commerce CSVs → load_data_v2.py → Raw E-Commerce Tables
-                       ↓
-            phase2_cleaning_eda.py → Cleaned Data + Issues Log
-                       ↓
-            phase3_starschema.py → Combined Star Schema (Marketing + E-Comm)
-                       ↓
-            phase4_kpis.py → MQL Volume, Conversion Rate, LTV by Channel
-                       ↓
-            phase5_funnel.py → Funnel Analysis, Lead Behavior, Time-to-Close
-                       ↓
-            Power BI → Marketing Dashboard (4 pages)
-```
-
 ### Data Quality & Cleaning#
 
 | Issue | Impact | Resolution |

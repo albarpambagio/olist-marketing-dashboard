@@ -100,18 +100,26 @@ Visual hierarchy guides the viewer's eye deliberately:
 
 ### Page Structure Template
 
-```
-┌─────────────────────────────────────────────────┐
-│  PAGE TITLE (One-sentence "so what?")          │
-├─────────────────────────────────────────────────┤
-│  [KPI Card1] [KPI Card2] [KPI Card3]        │ ← Top: Key numbers
-├─────────────────────────────────────────────────┤
-│  [Trend Line Chart]    [Bar/Donut Chart]       │ ← Middle: Visual trends
-├─────────────────────────────────────────────────┤
-│  [Detailed Table]    [Map/Scatter Plot]        │ ← Bottom: Deep dive
-├─────────────────────────────────────────────────┤
-│  Slicers: [Year] [State] [Category]           │ ← Filters (always visible)
-└─────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Top
+        A[PAGE TITLE<br/>One-sentence 'so what?']
+    end
+    subgraph KPI Row
+        B[KPI Card 1] --> C[KPI Card 2] --> D[KPI Card 3]
+    end
+    subgraph Charts Row
+        E[Trend Line Chart] --> F[Bar/Donut Chart]
+    end
+    subgraph Detail Row
+        G[Detailed Table] --> H[Map/Scatter Plot]
+    end
+    subgraph Filters
+        I[Slicers: Year, State, Category]
+    end
+    A --> B --> E --> G --> I
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style I fill:#ff9,stroke:#333,stroke-width:1px
 ```
 
 ### Color Palette

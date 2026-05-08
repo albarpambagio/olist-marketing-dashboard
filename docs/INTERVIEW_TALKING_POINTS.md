@@ -1,6 +1,6 @@
-# Interview Talking Points - Olist Marketing Funnel Dashboard#
+# Interview Talking Points - Olist Marketing Funnel Dashboard
 
-## Table of Contents#
+## Table of Contents
 1. [Project Walkthrough](#project-walkthrough)
 2. [Technical Decisions](#technical-decisions)
 3. [Data Challenges](#data-challenges)
@@ -13,11 +13,11 @@
 
 ---
 
-## Project Walkthrough#
+## Project Walkthrough
 
 **Question: "Walk me through this project"**
 
-**Answer Structure:** Business Question → Data Model → KPIs → Insights → Recommendations#
+**Answer Structure:** Business Question → Data Model → KPIs → Insights → Recommendations
 
 **Script:**
 > "This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun 2017–Jun 2018) combined with **100,000 orders** to create a full-funnel view. 
@@ -34,9 +34,9 @@
 
 ---
 
-## Technical Decisions#
+## Technical Decisions
 
-### "Why did you build a combined schema (Marketing + E-Commerce)?"#
+### "Why did you build a combined schema (Marketing + E-Commerce)?"
 
 **Key Points:**
 - **Full-funnel visibility**: MQL → Closed Deal → Seller → Orders → Revenue
@@ -46,7 +46,7 @@
 
 **Follow-up:** "In production, I'd add Google Analytics/UTM parameters to track digital campaigns more granularly, but for this dataset, `origin` field provided channel attribution."
 
-### "Why PostgreSQL over BigQuery/MySQL?"#
+### "Why PostgreSQL over BigQuery/MySQL?"
 
 **Answer:**
 - **Local control**: Can run offline, full control over database
@@ -54,7 +54,7 @@
 - **PostgreSQL-specific**: GENERATE_SERIES for date spine, window functions for LTV calculation
 - **Marketing analytics**: Complex JOINs (MQL → Deal → Seller → Orders) are cleaner in PostgreSQL
 
-### "Why Python for loading marketing data?"#
+### "Why Python for loading marketing data?"
 
 **Answer:**
 - **Error handling**: Python's `try/except` better for debugging CSV loading issues
@@ -63,9 +63,9 @@
 
 ---
 
-## Data Challenges#
+## Data Challenges
 
-### "What was the hardest data challenge?"#
+### "What was the hardest data challenge?"
 
 **Challenge1: Missing Seller_ID in Closed Deals**
 > "About 20% of closed deals had `seller_id = NULL`, meaning I couldn't link them to orders for LTV calculation. I used LEFT JOINs and documented this as a data quality gap — in production, this would need engineering fix."
@@ -81,9 +81,9 @@
 
 ---
 
-## Key Insights#
+## Key Insights
 
-### "What did you find? (Memorize These Numbers)"#
+### "What did you find? (Memorize These Numbers)"
 
 | Insight | Value | Business Meaning |
 |---------|-------|------------------|
@@ -94,7 +94,7 @@
 | Lead Behavior (Best) | "Cat": 15.0% conversion | Prioritize in SDR outreach |
 | Time-to-Close Trend | 38 → 52 days (36% longer) | Sales cycle lengthening |
 
-### "Tell me something surprising you found"#
+### "Tell me something surprising you found"
 
 > "The most surprising finding was that **Paid Search delivers 31% higher LTV** than Organic Search ($4,200 vs. $3,200 per MQL), despite Organic having 35% higher volume (2,800 vs. 1,600 MQLs). This suggests Organic traffic has quality issues — maybe SEO attracts browsers, not buyers."
 
@@ -102,9 +102,9 @@
 
 ---
 
-## Business Recommendations#
+## Business Recommendations
 
-### "What recommendations did you make?"#
+### "What recommendations did you make?"
 
 1. **Reallocate Budget to Paid Search** (High Impact)
    - Target: Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
@@ -121,7 +121,7 @@
    - Action: Audit sales process, implement SLA (first contact within 24 hours)
    - Expected Impact: Reduce time-to-close from 52 → 40 days = +$200,000 LTV (faster onboarding)
 
-### "How would you prioritize these recommendations?"#
+### "How would you prioritize these recommendations?"
 
 > "I'd start with budget reallocation because:
 > 1. Paid Search has proven 12% conversion vs. 11% for Organic — clear ROI
@@ -134,9 +134,9 @@
 
 ---
 
-## What I'd Do Differently#
+## What I'd Do Differently
 
-### "What would you do differently if you could redo this?"#
+### "What would you do differently if you could redo this?"
 
 **1. Add UTM Parameter Tracking**
 > "The `origin` field is limited (Organic, Paid, Social, Direct). In reality, I'd want UTM parameters (source, medium, campaign) to calculate ROI by specific ad campaigns and keywords."
@@ -152,9 +152,9 @@
 
 ---
 
-## Business Impact#
+## Business Impact
 
-### "What do these recommendations mean for the business?"#
+### "What do these recommendations mean for the business?"
 
 **Budget Reallocation (Paid Search ↑)**
 - Current: 1,600 MQLs at 12% conversion = 192 closed deals
@@ -176,9 +176,9 @@
 
 ---
 
-## Technical Deep-Dives#
+## Technical Deep-Dives
 
-### "Explain your LTV calculation by channel"#
+### "Explain your LTV calculation by channel"
 
 > "Lifetime Value (LTV) = Total Revenue from Seller / Number of MQLs in Channel:
 > 
@@ -192,7 +192,7 @@
 > 
 > **Key finding**: Paid Search = $4,200 LTV/MQL vs. Organic = $3,200. This 31% difference justifies budget reallocation."
 
-### "How did you calculate funnel conversion?"#
+### "How did you calculate funnel conversion?"
 
 > "Conversion Rate = Closed Deals / Total MQLs:
 > 
@@ -206,7 +206,7 @@
 > 
 > **Finding**: Paid Search = 12.0%, Direct = 11.0%, Organic = 11.0%. Despite Organic having 35% more volume, it converts same as Direct traffic."
 
-### "Why did you create `fact_marketing` view?"#
+### "Why did you create `fact_marketing` view?"
 
 > "I needed a combined view that joins MQLs → Closed Deals → Sellers → Orders:
 > 
@@ -223,9 +223,9 @@
 
 ---
 
-## Behavioral Questions#
+## Behavioral Questions
 
-### "Tell me about a time you found a marketing inefficiency"#
+### "Tell me about a time you found a marketing inefficiency"
 
 > "For this project, I discovered that **Organic Search drives 35% of MQLs but only converts at 11%** (same as Direct traffic with 10% volume). 
 > 
@@ -233,7 +233,7 @@
 > 
 > Despite Organic having 75% more MQLs, it only delivers 60% more deals. This suggests traffic quality issues — maybe SEO attracts browsers, not serious sellers. I recommended shifting 30% of Organic budget to Paid Search."
 
-### "How do you prioritize marketing channels?"#
+### "How do you prioritize marketing channels?"
 
 > "I use the 80/20 rule: 20% of channels deliver 80% of LTV. For this analysis:
 > - **Must-invest**: Paid Search ($4,200 LTV, 12% conversion)
@@ -241,7 +241,7 @@
 > - **Should-optimize**: Organic Search ($3,200 LTV, 35% volume but low conversion)
 > - **Should-disqualify**: "Shark" leads (6% conversion, high maintenance)"
 
-### "How do you ensure data quality for marketing analytics?"#
+### "How do you ensure data quality for marketing analytics?"
 
 > "I use the CLEAN framework:
 > 1. **Conceptualize**: Grain = one MQL, metrics = conversion/LTV, dimensions = channel/behavior
@@ -252,7 +252,7 @@
 
 ---
 
-## Quick Reference Card#
+## Quick Reference Card
 
 **Memorize These 5 Things:**
 
