@@ -370,20 +370,6 @@ python sql/phase5_funnel.py
 
 ---
 
-## Interview Reference
-
-### One-Sentence Project Summary
-> "I built a marketing funnel dashboard for Olist using PostgreSQL and Power BI, finding Paid Search converts 20% better than Organic and delivers $4,200 LTV — representing $800k+ annual LTV opportunity."
-
-### 5 Numbers to Memorize
-1. **MQLs**: 8,000 leads (Jun 2017–Jun 2018)
-2. **Conversion**: Paid Search 12% vs. Organic 11% (budget reallocation opportunity)
-3. **LTV**: Paid Search $4,200 vs. Organic $3,200 per MQL
-4. **Lead Behavior**: "Cat" leads 15% conversion (prioritize in SDR outreach)
-5. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Combined Star Schema)
-
----
-
 ## Project Files
 
 ```
