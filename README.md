@@ -1,10 +1,10 @@
-# Olist Marketing Funnel: Channel Performance & LTV Analysis#
+# Olist Marketing Funnel: Channel Performance & LTV Analysis
 
-## Background & Overview#
+## Background & Overview
 
 This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun 2017–Jun 2018) combined with **100,000 orders** to create a full-funnel view. The analysis focuses on **channel performance, lead conversion, and lifetime value (LTV)** to help Olist's Marketing team optimize acquisition spend.
 
-### Dataset#
+### Dataset
 
 | Attribute | Detail |
 |-----------|--------|
@@ -14,7 +14,7 @@ This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun
 | E-Commerce Tables | 9 (Orders: 100k, Sellers: 3k+) |
 | Date Range | June 2017 – June 2018 (Marketing), 2016–2018 (E-Commerce) |
 
-### Technical Stack#
+### Technical Stack
 
 **PostgreSQL → Python ETL → Power BI Desktop**
 
@@ -22,7 +22,7 @@ This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun
 - **Python**: ETL scripts for loading marketing funnel + existing Olist data
 - **Power BI**: Multi-page dashboard with funnel visualization + LTV analysis
 
-### Stakeholder Audience#
+### Stakeholder Audience
 
 This dashboard supports Olist's Marketing team:
 
@@ -32,7 +32,7 @@ This dashboard supports Olist's Marketing team:
 | Acquisition Managers | Channel performance, lead quality | Channel breakdowns, lead behavior profiles |
 | Sales Ops | Deal closing time, lead-to-seller conversion | Funnel visualization, time-to-close |
 
-### Business Questions Answered#
+### Business Questions Answered
 
 1. Which marketing channels have the highest conversion rates?
 2. What is the lead quality by origin (Organic Search, Paid Search, Social, Direct)?
@@ -118,7 +118,7 @@ flowchart LR
     M --> N[Funnel + Lead Behavior]
     N --> O[Power BI Dashboard]
 ```
-### Data Quality & Cleaning#
+### Data Quality & Cleaning
 
 | Issue | Impact | Resolution |
 |-------|--------|-------------|
@@ -128,9 +128,9 @@ flowchart LR
 
 ---
 
-## Executive Summary#
+## Executive Summary
 
-### Key Metrics#
+### Key Metrics
 
 | Metric | Value | Business Meaning |
 |--------|-------|------------------|
@@ -141,7 +141,7 @@ flowchart LR
 | **Avg Time-to-Close** | ~45 days | Sales cycle length |
 | **LTV by Channel (Top)** | Paid Search: $4,200/seller | High-value acquisition |
 
-### Channel Performance Summary#
+### Channel Performance Summary
 
 | Channel | MQLs | Closed Deals | Conversion Rate | Avg LTV |
 |---------|------|-------------|-----------------|---------|
@@ -155,15 +155,9 @@ flowchart LR
 
 ---
 
-## North Star Metrics#
+## North Star Metrics
 
-| North Star | Value | Stakeholder Team | Levers They Can Pull |
-|------------|-------|------------------|----------------------|
-| **Conversion Rate** (18.75% overall) | Primary Marketing KPI | Marketing | Budget allocation, channel strategy |
-| **LTV by Channel** (varies $2.4k–$4.2k) | Acquisition ROI | Marketing + Finance | Channel investment, seller support |
-| **MQL Volume** (8,000) | Top-of-funnel health | Marketing | Campaign strategy, lead generation |
-
-### Key Dimensions for Slicing#
+### Key Dimensions for Slicing
 
 | Dimension | Why It Matters | Team Responsible |
 |-----------|----------------|----------|
@@ -173,11 +167,11 @@ flowchart LR
 
 ---
 
-## Insights Deep Dive#
+## Insights Deep Dive
 
-### Marketing Funnel Performance#
+### Marketing Funnel Performance
 
-#### MQL Volume by Channel#
+#### MQL Volume by Channel
 
 | Channel | MQL Count | % of Total |
 |---------|-----------|-------------|
@@ -192,7 +186,7 @@ flowchart LR
 
 ---
 
-#### Conversion Rate by Channel#
+#### Conversion Rate by Channel
 
 | Channel | Conversion Rate | Closed Deals |
 |---------|-----------------|-------------|
@@ -206,7 +200,7 @@ flowchart LR
 
 ---
 
-### Lead Behavior Analysis#
+### Lead Behavior Analysis
 
 Lead behavior profiles (based on DISC) predict conversion likelihood:
 
@@ -221,7 +215,7 @@ Lead behavior profiles (based on DISC) predict conversion likelihood:
 
 ---
 
-### Lifetime Value (LTV) by Channel#
+### Lifetime Value (LTV) by Channel
 
 LTV = Total Revenue from Seller / Number of MQLs in Channel
 
@@ -237,7 +231,7 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-### Time-to-Close Analysis#
+### Time-to-Close Analysis
 
 | Month | Avg Days to Close | Deals Won |
 |-------|-------------------|------------|
@@ -251,25 +245,25 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-## Recommendations#
+## Recommendations
 
-### Market Context & Background#
+### Market Context & Background
 *Insights that explain the "why" but can't be directly acted on:*
 
 - Seasonal pattern: Deals won increasing steadily (85 → 207 from Dec 2017–Apr 2018)
 - Sales cycle lengthening: 38 → 52 days (36% increase) — market saturation?
 - MQL volume: 8,000 leads, but only 35% from Organic Search (quality concern)
 
-### Areas for Further Investigation#
+### Areas for Further Investigation
 *Observations that point to something worth exploring but need more data:*
 
 - **Organic Search: High volume (35%) but low LTV ($3,200)** — traffic quality issue? SEO optimization needed?
 - **Time-to-close increasing 38 → 52 days** — sales process inefficiency? Market saturation?
 - **"Shark" leads: 6% conversion** — should we disqualify them earlier?
 
-### Actionable Recommendations#
+### Actionable Recommendations
 
-#### 1. Reallocate Budget to Paid Search (High Impact)#
+#### 1. Reallocate Budget to Paid Search (High Impact)
 
 **Target:** Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
 
@@ -284,7 +278,7 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-#### 2. Prioritize "Cat" Leads in SDR Outreach (Medium Impact)#
+#### 2. Prioritize "Cat" Leads in SDR Outreach (Medium Impact)
 
 **Target:** "Cat" behavior profile (15% conversion vs. 6% for "Shark")
 
@@ -299,7 +293,7 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-#### 3. Investigate Lengthening Sales Cycle (Medium Impact)#
+#### 3. Investigate Lengthening Sales Cycle (Medium Impact)
 
 **Target:** Time-to-close increased 38 → 52 days (36% longer)
 
@@ -314,7 +308,7 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-### Combined 1-Year Business Impact#
+### Combined 1-Year Business Impact
 
 | Initiative | Estimated Revenue Impact |
 |------------|--------------------------|
@@ -325,9 +319,9 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ---
 
-## Technical Implementation#
+## Technical Implementation
 
-### SQL Scripts (`/sql/` folder) — NEW#
+### SQL Scripts (`/sql/` folder) — NEW
 
 | Script | Description |
 |--------|-------------|
@@ -339,21 +333,24 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 | `phase4_kpis.py` | Marketing KPIs: MQL volume, conversion rate, LTV by channel |
 | `phase5_funnel.py` | **NEW:** Funnel analysis, lead behavior, time-to-close |
 
-### Dashboard Pages#
+### Dashboard Pages
 
 1. **Marketing Funnel Overview** — MQL volume, conversion rate, deals won (KPI cards + trend)
 2. **Channel Performance** — Conversion rate by origin, LTV by channel (bar + scatter)
 3. **Lead Quality** — Lead behavior profiles (Cat/Eagle/Wolf/Shark), time-to-close by segment
 4. **LTV Analysis** — Revenue by marketing channel, cohort retention of sellers**
 
-### Quick Start#
+---
 
-#### Prerequisites#
+### Quick Start
+
+#### Prerequisites
 - PostgreSQL (running on port 5433)
 - Python 3.x with `psycopg2-binary`
 - Power BI Desktop (free)
 
-#### Setup#
+#### Setup
+
 ```bash
 # 1. Download datasets
 kaggle datasets download -d olistbr/marketing-funnel-olist -p ./data --unzip
@@ -373,12 +370,12 @@ python sql/phase5_funnel.py
 
 ---
 
-## Interview Reference#
+## Interview Reference
 
-### One-Sentence Project Summary#
+### One-Sentence Project Summary
 > "I built a marketing funnel dashboard for Olist using PostgreSQL and Power BI, finding Paid Search converts 20% better than Organic and delivers $4,200 LTV — representing $800k+ annual LTV opportunity."
 
-### 5 Numbers to Memorize#
+### 5 Numbers to Memorize
 1. **MQLs**: 8,000 leads (Jun 2017–Jun 2018)
 2. **Conversion**: Paid Search 12% vs. Organic 11% (budget reallocation opportunity)
 3. **LTV**: Paid Search $4,200 vs. Organic $3,200 per MQL
@@ -387,7 +384,7 @@ python sql/phase5_funnel.py
 
 ---
 
-## Project Files#
+## Project Files
 
 ```
 olist-marketing-dashboard/
@@ -415,7 +412,7 @@ olist-marketing-dashboard/
 
 ---
 
-## Data Source#
+## Data Source
 
 **Marketing Funnel by Olist**  
 [Download from Kaggle](https://www.kaggle.com/datasets/olistbr/marketing-funnel-olist)  
@@ -427,7 +424,7 @@ Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4
 
 ---
 
-## Author#
+## Author
 
 **Albar Pambagio**  
 GitHub: [@albarpambagio](https://github.com/albarpambagio)  

@@ -1,12 +1,12 @@
-# Dashboard Guide - Marketing Funnel#
+# Dashboard Guide - Marketing Funnel
 
 This document outlines the dashboard structure for the **Olist Marketing Funnel**, focused on channel performance, lead conversion, and lifetime value (LTV).
 
 ---
 
-## Dashboard Pages#
+## Dashboard Pages
 
-### Page1: Marketing Funnel Overview#
+### Page1: Marketing Funnel Overview
 
 **KPI Cards (top row):**
 - MQL Volume (8,000 total)
@@ -24,7 +24,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### Page2: Channel Performance#
+### Page2: Channel Performance
 
 **Visuals:**
 - Conversion rate by origin (horizontal bar, sorted desc)
@@ -36,7 +36,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### Page3: Lead Quality#
+### Page3: Lead Quality
 
 **Visuals:**
 - Lead behavior profiles (Cat/Eagle/Wolf/Shark) — conversion rate (bar chart)
@@ -48,7 +48,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### Page4: LTV Analysis#
+### Page4: LTV Analysis
 
 **Visuals:**
 - Revenue by marketing channel (stacked bar or line chart)
@@ -60,9 +60,9 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-## DASH Framework Applied#
+## DASH Framework Applied
 
-### D — Decision#
+### D — Decision
 
 | Page | Decision Enabled | Owner |
 |------|------------------|-------|
@@ -73,7 +73,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### A — Audience#
+### A — Audience
 
 | Audience | Needs | Implication |
 |----------|-------|--------------|
@@ -83,7 +83,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### S — Signal#
+### S — Signal
 
 | Metric | Why It's Included |
 |--------|-------------------|
@@ -98,7 +98,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-### H — Hierarchy#
+### H — Hierarchy
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -116,7 +116,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-## Key SQL Views for Marketing Dashboard#
+## Key SQL Views for Marketing Dashboard
 
 | View | Purpose | Source File |
 |------|---------|-------------|
@@ -128,16 +128,16 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 ---
 
-## Color Palette#
+## Color Palette
 
 - **Primary:** `#1f77b4` (blue) — Paid Search, positive metrics
 - **Secondary:** `#ff7f0e` (orange) — Organic Search, warnings
 - **Neutral:** `#2ca02c` (green) — Direct traffic, positive conversion
-- **Text:** `#333333` (dark gray) — all labels and titles#
+- **Text:** `#333333` (dark gray) — all labels and titles
 
 ---
 
-## Dashboard Design Checklist#
+## Dashboard Design Checklist
 
 - [ ] Consistent color palette across all pages (pick 2-3 colors max)
 - [ ] All axis labels readable (font size ≥ 11pt)
