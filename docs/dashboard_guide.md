@@ -20,7 +20,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 - Deals won by month (line chart)
 - Slicer: Year, Channel, Lead Behavior
 
-**Business narrative:** "Are we acquiring quality leads, and which channels convert best?"
+**Business narrative:** "Should the VP of Marketing reallocate budget from low-converting channels to high-LTV channels?"
 
 ---
 
@@ -32,7 +32,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 - Conversion rate vs. LTV scatter (bubble size = MQL volume)
 - Channel volume mix (donut chart)
 
-**Business narrative:** "Which channels deliver the highest ROI and LTV?"
+**Business narrative:** "Should the Head of Acquisition shift budget from Organic to Paid Search based on conversion and LTV data?"
 
 ---
 
@@ -43,8 +43,9 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 - Time-to-close by lead behavior (box plot or bar chart)
 - Lead behavior distribution (donut)
 - Conversion rate trend by behavior (line chart over time)
+- **NEW:** Channel × Lead Behavior Cross-Tab (heatmap matrix — rows = channel, columns = behavior, fill = conversion rate %)
 
-**Business narrative:** "Which lead types should SDRs prioritize?"
+**Business narrative:** "Should the Head of Sales Ops change SDR prioritization rules — and does the answer change when we cross-tab with channel?"
 
 ---
 
@@ -66,10 +67,10 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 | Page | Decision Enabled | Owner |
 |------|------------------|-------|
-| Funnel Overview | Are we acquiring quality leads? | Marketing Leadership |
-| Channel Performance | Where should we allocate budget? | Acquisition Managers |
-| Lead Quality | Which leads should SDRs call first? | Sales Ops |
-| LTV Analysis | What is long-term channel value? | Marketing + Finance |
+| Funnel Overview | Should the VP of Marketing reallocate budget across channels? | VP Marketing |
+| Channel Performance | Should the Head of Acquisition shift spend from Organic to Paid Search? | Head of Acquisition |
+| Lead Quality | Should the Head of Sales Ops change SDR prioritization rules? | Head of Sales Ops |
+| LTV Analysis | Should VP Marketing + VP Finance adjust channel investment based on true LTV/MQL? | VP Marketing & Finance |
 
 ---
 
@@ -89,7 +90,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 |--------|-------------------|
 | **MQL Volume** (8,000) | Top-of-funnel health indicator |
 | **Conversion Rate** (18.75% overall) | Primary marketing KPI |
-| **LTV by Channel** ($2.4k–$4.2k) | ROI driver for budget decisions |
+| **LTV by Channel** (see data traceability) | ROI driver for budget decisions (view fixed: LEFT JOIN) |
 | **Time-to-Close** (avg 45 days) | Sales cycle efficiency |
 
 **Excluded from executive page:**
@@ -120,11 +121,12 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 | View | Purpose | Source File |
 |------|---------|-------------|
-| `kpi_mql_volume` | MQL count by month + channel | `phase4_kpis.py` |
-| `kpi_conversion_rate` | Conversion % by channel | `phase4_kpis.py` |
-| `kpi_ltv_by_channel` | LTV per MQL, per seller | `phase4_kpis.py` |
-| `kpi_lead_behavior` | Conversion by Cat/Eagle/Wolf/Shark | `phase5_funnel.py` |
-| `kpi_time_to_close` | Avg days by month, behavior | `phase5_funnel.py` |
+| `kpi_mql_volume` | MQL count by month + channel | `phase5_funnel.py:36` |
+| `kpi_conversion_rate` | Conversion % by channel | `phase5_funnel.py:52` |
+| `kpi_ltv_by_channel` | LTV per MQL, per seller (LEFT JOIN fix applied) | `phase5_funnel.py:71` |
+| `kpi_lead_behavior` | Conversion by Cat/Eagle/Wolf/Shark | `phase5_funnel.py:90` |
+| `kpi_time_to_close` | Avg days by month | `phase5_funnel.py:121` |
+| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab (NEW) | `phase5_funnel.py:137` |
 
 ---
 

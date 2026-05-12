@@ -10,11 +10,10 @@ Every dashboard page is built around a specific decision it enables:
 
 | Page | Decision Enabled | Owner |
 |------|------------------|-------|
-| Executive Overview | Is the business growing and are we delivering on promises? | Sales & Ops Leadership |
-| Customer Analysis | Who are our customers and where are they? | Category Managers |
-| Product & Category | Which categories drive revenue and delight customers? | Category Managers |
-| Seller Performance | Which sellers are reliable and high-value? | Ops Team |
-| Logistics & Delivery | Where are we slow, and is delivery getting better? | Ops Team |
+| Funnel Overview | Should the VP of Marketing reallocate acquisition budget across channels? | VP Marketing |
+| Channel Performance | Should the Head of Acquisition shift spend from Organic to Paid Search? | Head of Acquisition |
+| Lead Quality | Should the Head of Sales Ops change SDR prioritization rules based on lead behavior × channel? | Head of Sales Ops |
+| LTV Analysis | Should the VP Marketing + VP Finance adjust channel investment based on true LTV/MQL? | VP Marketing & Finance |
 
 **Decision Frequency:** Monthly for all pages (aligned with business review cycle).
 

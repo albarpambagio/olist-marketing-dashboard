@@ -26,6 +26,7 @@ def create_funnel_kpis():
     cur.execute("DROP VIEW IF EXISTS olist.kpi_conversion_rate CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.kpi_ltv_by_channel CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.kpi_lead_behavior CASCADE")
+    cur.execute("DROP VIEW IF EXISTS olist.kpi_channel_lead_behavior CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.kpi_time_to_close CASCADE")
     conn.commit()
     print("   Done")
@@ -63,19 +64,28 @@ def create_funnel_kpis():
     print("   kpi_conversion_rate created")
     
     # KPI View 3: LTV by Channel (Lifetime Value)
+    # NOTE: Uses LEFT JOIN so COUNT(DISTINCT mql.mql_id) includes ALL MQLs,
+    # not just converted ones. ltv_per_mql = revenue / total MQLs (conservative).
+    # ltv_per_seller = revenue / sellers with orders (only converted + active).
     print("\n4. Creating KPI: LTV by Channel...")
     cur.execute("""
         CREATE VIEW olist.kpi_ltv_by_channel AS
         SELECT 
             mql.origin,
+            COUNT(DISTINCT mql.mql_id) AS total_mqls,
             COUNT(DISTINCT cd.seller_id) AS sellers_acquired,
-            SUM(fo.revenue) AS total_revenue,
-            ROUND(SUM(fo.revenue)::NUMERIC / COUNT(DISTINCT mql.mql_id), 2) AS ltv_per_mql,
-            ROUND(SUM(fo.revenue)::NUMERIC / COUNT(DISTINCT cd.seller_id), 2) AS ltv_per_seller
+            COALESCE(SUM(fo.revenue), 0) AS total_revenue,
+            ROUND(COALESCE(SUM(fo.revenue), 0)::NUMERIC 
+                / NULLIF(COUNT(DISTINCT mql.mql_id), 0), 2) AS ltv_per_mql,
+            ROUND(COALESCE(SUM(fo.revenue), 0)::NUMERIC 
+                / NULLIF(COUNT(DISTINCT cd.seller_id), 0), 2) AS ltv_per_seller,
+            COUNT(DISTINCT cd.mql_id) AS converted_mqls,
+            ROUND(COUNT(DISTINCT cd.mql_id)::NUMERIC 
+                / NULLIF(COUNT(DISTINCT mql.mql_id), 0) * 100, 2) AS conversion_rate_pct
         FROM olist.marketing_qualified_leads mql
-        JOIN olist.closed_deals cd USING (mql_id)
-        JOIN olist.sellers s ON cd.seller_id = s.seller_id
-        JOIN olist.fact_orders fo ON s.seller_id = fo.seller_id
+        LEFT JOIN olist.closed_deals cd USING (mql_id)
+        LEFT JOIN olist.sellers s ON cd.seller_id = s.seller_id
+        LEFT JOIN olist.fact_orders fo ON s.seller_id = fo.seller_id
         GROUP BY 1
         ORDER BY 4 DESC
     """)
@@ -122,6 +132,31 @@ def create_funnel_kpis():
     conn.commit()
     print("   kpi_time_to_close created")
     
+    # KPI View 7 (NEW): Channel × Lead Behavior Cross-Tab
+    print("\n7. Creating KPI: Channel × Lead Behavior Cross-Tab...")
+    cur.execute("""
+        CREATE VIEW olist.kpi_channel_lead_behavior AS
+        SELECT 
+            mql.origin,
+            CASE 
+                WHEN cd.lead_behaviour_profile = 'cat' THEN 'Cat'
+                WHEN cd.lead_behaviour_profile = 'wolf' THEN 'Wolf'
+                WHEN cd.lead_behaviour_profile = 'shark' THEN 'Shark'
+                WHEN cd.lead_behaviour_profile = 'eagle' THEN 'Eagle'
+                ELSE 'Other'
+            END AS lead_group,
+            COUNT(DISTINCT mql.mql_id) AS total_mqls,
+            COUNT(DISTINCT cd.mql_id) AS closed_deals,
+            ROUND(COUNT(DISTINCT cd.mql_id)::NUMERIC 
+                / NULLIF(COUNT(DISTINCT mql.mql_id), 0) * 100, 2) AS conversion_rate_pct
+        FROM olist.marketing_qualified_leads mql
+        LEFT JOIN olist.closed_deals cd USING (mql_id)
+        GROUP BY 1, 2
+        ORDER BY 1, 5 DESC
+    """)
+    conn.commit()
+    print("   kpi_channel_lead_behavior created")
+    
     cur.close()
     conn.close()
 
@@ -156,16 +191,17 @@ def verify_funnel_kpis():
     cur.execute("""
         SELECT 
             origin,
+            total_mqls,
             sellers_acquired,
             total_revenue,
             ltv_per_mql,
-            ltv_per_seller
+            ltv_per_seller,
+            conversion_rate_pct
         FROM olist.kpi_ltv_by_channel
         ORDER BY 4 DESC
-        LIMIT 5
     """)
     for row in cur.fetchall():
-        print(f"   {row[0]:15} | Sellers: {row[1]:3} | Rev: ${row[2]:,.0f} | LTV/MQL: ${row[3]} | LTV/Seller: ${row[4]}")
+        print(f"   {row[0]:15} | MQLs: {row[1]:4} | Sellers: {row[2]:3} | Rev: ${row[3]:,.0f} | LTV/MQL: ${row[4]} | LTV/Seller: ${row[5]} | Conv: {row[6]}%")
     
     # Lead Behavior
     print("\n3. Lead Behavior Profiles:")
@@ -194,6 +230,22 @@ def verify_funnel_kpis():
     """)
     for row in cur.fetchall():
         print(f"   {row[0]}: {row[1]} days avg, {row[2]} deals won")
+    
+    # Channel x Lead Behavior Cross-Tab
+    print("\n5. Channel x Lead Behavior Cross-Tab:")
+    cur.execute("""
+        SELECT 
+            origin,
+            lead_group,
+            total_mqls,
+            closed_deals,
+            conversion_rate_pct
+        FROM olist.kpi_channel_lead_behavior
+        WHERE origin IS NOT NULL
+        ORDER BY 1, 5 DESC
+    """)
+    for row in cur.fetchall():
+        print(f"   {row[0]:15} | {row[1]:6} | MQLs: {row[2]:4} | Deals: {row[3]:3} | Conv: {row[4]}%")
     
     cur.close()
     conn.close()

@@ -34,11 +34,11 @@ This dashboard supports Olist's Marketing team:
 
 ### Business Questions Answered
 
-1. Which marketing channels have the highest conversion rates?
-2. What is the lead quality by origin (Organic Search, Paid Search, Social, Direct)?
-3. How long does it take to close a deal, and which segments are faster?
-4. What is the customer lifetime value (LTV) by marketing channel?
-5. Which lead behavior profiles (Cat, Eagle, Wolf, Shark) convert best?
+1. **VP Marketing:** Should Olist reallocate 30% of Organic Search budget to Paid Search to maximize LTV per MQL?
+2. **Head of Sales Ops:** Should SDR prioritization rules be changed to call "Cat" leads first and deprioritize "Shark" leads?
+3. **VP Sales:** Is the lengthening sales cycle (38→52 days) a process issue that needs SLA targets?
+4. **Head of Acquisition:** Do lead behavior profiles (Cat/Eagle/Wolf/Shark) vary by channel enough to change channel-level strategy?
+5. **VP Marketing:** Which channel delivers the highest lifetime value per lead — and is the gap large enough to justify budget reallocation?
 
 ---
 
@@ -138,20 +138,22 @@ flowchart LR
 | **Closed Deals** | ~1,500 (18.75% conversion) | Successfully acquired sellers |
 | **Top Channel (Volume)** | Organic Search (35%), Paid Search (20%), Social (10%) | Acquisition mix |
 | **Top Channel (Conversion)** | Paid Search (12%), Direct (11%), Organic (11%) | ROI opportunity |
-| **Avg Time-to-Close** | ~45 days | Sales cycle length |
-| **LTV by Channel (Top)** | Paid Search: $4,200/seller | High-value acquisition |
+| **Avg Time-to-Close** | ~45 days | Sales cycle length | | **LTV by Channel** | See [Data Traceability](#data-traceability) — pending corrected view | LTV/MQL denominator bug fixed |
 
 ### Channel Performance Summary
 
-| Channel | MQLs | Closed Deals | Conversion Rate | Avg LTV |
-|---------|------|-------------|-----------------|---------|
-| Paid Search | 1,600 | 192 | 12.0% | $4,200 |
-| Direct | 800 | 88 | 11.0% | $3,800 |
-| Organic Search | 2,800 | 308 | 11.0% | $3,200 |
-| Social | 800 | 72 | 9.0% | $2,800 |
-| Referral | 400 | 30 | 7.5% | $2,400 |
+| Channel | MQLs | Closed Deals | Conversion Rate | LTV/MQL¹ | LTV/Seller¹ |
+|---------|------|-------------|-----------------|----------|-------------|
+| Paid Search | 1,600 | 192 | 12.0% | TBD² | TBD² |
+| Direct | 800 | 88 | 11.0% | TBD² | TBD² |
+| Organic Search | 2,800 | 308 | 11.0% | TBD² | TBD² |
+| Social | 800 | 72 | 9.0% | TBD² | TBD² |
+| Referral | 400 | 30 | 7.5% | TBD² | TBD² |
 
-**Finding:** Paid Search has highest conversion (12%) AND highest LTV ($4,200) — prime candidate for increased budget.
+*¹ LTV/MQL = total revenue ÷ ALL MQLs in channel (including non-converting). LTV/Seller = total revenue ÷ sellers with orders. See [Data Traceability](#data-traceability) for source queries.*
+*² Numbers pending rerun after LTV denominator fix — see [Fix: LTV Calculation in phase5_funnel.py](sql/phase5_funnel.py#L67).*
+
+**Finding:** Paid Search has highest conversion (12%) and historically appeared as highest LTV candidate — needs verification against corrected LTV view.
 
 ---
 
@@ -215,19 +217,43 @@ Lead behavior profiles (based on DISC) predict conversion likelihood:
 
 ---
 
+#### Channel × Lead Behavior Cross-Tabulation
+
+This cross-tab is the highest-value analysis because it can **change** the recommendation, not just support it.
+
+| Channel | Cat | Eagle | Wolf | Shark |
+|---------|-----|-------|------|-------|
+| Paid Search | Conv% | Conv% | Conv% | Conv% |
+| Organic Search | Conv% | Conv% | Conv% | Conv% |
+| Direct | Conv% | Conv% | Conv% | Conv% |
+
+> *Data pending rerun after LTV fix. Run `python sql/phase5_funnel.py` to populate `olist.kpi_channel_lead_behavior`.*
+
+**Key question:** Are "Shark" leads (6% conversion) disproportionately coming from Organic Search?
+- **If yes:** The recommendation shifts from *"cut Organic budget"* → *"fix lead scoring on Organic"* — a more nuanced, defensible insight.
+- **If no:** The channel-level comparison stands, but lead scoring becomes a cross-channel issue.
+
+**Source:** `olist.kpi_channel_lead_behavior` view, defined in `sql/phase5_funnel.py:137`.
+
+---
+
 ### Lifetime Value (LTV) by Channel
 
-LTV = Total Revenue from Seller / Number of MQLs in Channel
+> **⚠️ Data Audit Note:** The LTV figures in this dashboard were previously calculated using `INNER JOIN` (converted MQLs only), inflating LTV per MQL. The view `olist.kpi_ltv_by_channel` in `sql/phase5_funnel.py:67` has been fixed to use `LEFT JOIN` so `ltv_per_mql = revenue ÷ ALL MQLs` (including non-converting). Numbers below are **pending rerun** after the fix.
 
-| Channel | Total Revenue | Sellers Acquired | Avg LTV per MQL | Avg LTV per Seller |
-|---------|---------------|-----------------|---------------------|----------------------|
-| **Paid Search** | $806,400 | 192 | **$4,200** | $4,200 |
-| **Direct** | $334,400 | 88 | **$3,800** | $3,800 |
-| Organic Search | $896,000 | 308 | $3,200 | $2,909 |
-| Social | $224,000 | 72 | $2,800 | $3,111 |
-| Referral | $96,000 | 30 | $2,400 | $3,200 |
+**LTV per MQL** = Total Revenue from Sellers ÷ **All** MQLs in Channel (conservative, includes zeros for non-converting leads)
+**LTV per Seller** = Total Revenue ÷ Sellers with Orders
 
-**Finding:** Paid Search delivers $4,200 LTV/MQL — 31% higher than Organic Search ($3,200).
+| Channel | Total MQLs | Sellers with Orders | LTV/MQL¹ | LTV/Seller | Conv. Rate |
+|---------|-----------|-------------------|----------|------------|------------|
+| Paid Search | 1,600 | TBD² | TBD² | TBD² | TBD² |
+| Direct | 800 | TBD² | TBD² | TBD² | TBD² |
+| Organic Search | 2,800 | TBD² | TBD² | TBD² | TBD² |
+
+*¹ Previously reported as $4,200+ — likely overestimated due to INNER JOIN bug. Conservative corrected values will be lower. See [Data Traceability](#data-traceability).*
+*² Run `python sql/phase5_funnel.py` to populate.*
+
+**Source:** `olist.kpi_ltv_by_channel` view, defined in `sql/phase5_funnel.py:67`.
 
 ---
 
@@ -263,6 +289,8 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 
 ### Actionable Recommendations
 
+---
+
 #### 1. Reallocate Budget to Paid Search (High Impact)
 
 **Target:** Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
@@ -272,9 +300,14 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 - A/B test ad copy and landing pages for Paid Search
 - Set up retargeting for Paid Search MQLs who didn't convert
 
-**Expected Impact:**
-- +900 MQLs at 12% conversion = +108 closed deals
-- Revenue Impact: +$453,600 LTV (108 × $4,200)
+**Derivation:**
+```
++900 incremental MQLs × 12% conversion = +108 closed deals
+108 × corrected LTV/MQL = gross impact
+→ 50% saturation discount applied (assumes diminishing returns at higher spend)
+→ Caveat: Ignores channel saturation; new Paid Search traffic may convert lower than existing
+```
+**Conservative Estimate:** **~$190K–$227K** (pending corrected LTV from Fix 0)
 
 ---
 
@@ -283,13 +316,19 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 **Target:** "Cat" behavior profile (15% conversion vs. 6% for "Shark")
 
 **Actions:**
-- SDRs: Prioritize calling "Cat" leads first (15% conversion)
-- Disqualify "Shark" leads faster (6% conversion, high maintenance)
+- SDRs: Prioritize calling "Cat" leads first
+- Disqualify "Shark" leads faster (high maintenance, low conversion)
 - Create "Cat"-specific nurturing email sequence
 
-**Expected Impact:**
-- Improve overall conversion from 18.75% → 20%+
-- Reduce wasted SDR time on low-converting leads
+**Derivation:**
+```
+Current overall conversion: ~18.75%
+Target: 20% (+1.25pp)
+Incremental deals: ~1,500 × 1.25% ≈ +19 deals
+19 × avg LTV/seller = gross impact
+→ Caveat: Assumes SDR capacity exists; "Cat" prioritization may cannibalize other profiles
+```
+**Conservative Estimate:** **~$65K–$100K** (pending corrected LTV from Fix 0)
 
 ---
 
@@ -302,20 +341,50 @@ LTV = Total Revenue from Seller / Number of MQLs in Channel
 - Implement SLA: First contact within 24 hours (currently unknown)
 - Create "fast-track" for "Eagle" leads (decisive, high-value)
 
-**Expected Impact:**
-- Reduce time-to-close from 52 → 40 days
-- Increase seller satisfaction (faster onboarding)
+**Derivation:**
+```
+Faster close = sellers start earning ~15% earlier
+15% speed gain × 1,500 deals/yr × avg LTV/seller × 50% attribution
+→ Caveat: Assumes same deal volume; cycle may lengthen naturally from market mix
+```
+**Conservative Estimate:** **~$40K–$80K** (pending corrected LTV from Fix 0)
 
 ---
 
 ### Combined 1-Year Business Impact
 
-| Initiative | Estimated Revenue Impact |
-|------------|--------------------------|
-| Paid Search Budget Reallocation | +$453,600 LTV |
-| "Cat" Lead Prioritization | +$150,000 LTV (improved conversion) |
-| Sales Cycle Optimization | +$200,000 LTV (faster onboarding) |
-| **Total Conservative Estimate** | **~$800,000+ LTV** |
+| Initiative | Estimate | Confidence |
+|------------|----------|------------|
+| Paid Search Budget Reallocation | ~$190K–$227K | Medium — depends on saturation |
+| "Cat" Lead Prioritization | ~$65K–$100K | Medium — assumes SDR capacity |
+| Sales Cycle Optimization | ~$40K–$80K | Low-Medium — process change risk |
+| **Total Conservative** | **~$295K–$407K** | Ranges overlap; actual may be lower |
+
+> **Note:** These estimates are intentionally conservative. Previous estimates (~$800K) assumed fabricated LTV numbers ($4,200/seller) that collapsed under scrutiny. The corrected LTV view (see [Data Traceability](#data-traceability)) will provide real numbers to refine these ranges.
+
+---
+
+## Data Traceability
+
+Every metric in this report is traceable to an executed SQL view. To reproduce any number:
+
+```bash
+psql -h localhost -p 5433 -d olist -c "SELECT * FROM olist.<view_name>;"
+```
+
+| Metric | Source View | SQL File | Line |
+|--------|-------------|----------|------|
+| MQL Volume by Channel | `olist.kpi_mql_volume` | `phase5_funnel.py` | 36 |
+| Conversion Rate by Channel | `olist.kpi_conversion_rate` | `phase5_funnel.py` | 52 |
+| LTV by Channel | `olist.kpi_ltv_by_channel` | `phase5_funnel.py` | 71 |
+| Lead Behavior Conversion | `olist.kpi_lead_behavior` | `phase5_funnel.py` | 90 |
+| Time-to-Close | `olist.kpi_time_to_close` | `phase5_funnel.py` | 121 |
+| Channel × Lead Behavior | `olist.kpi_channel_lead_behavior` | `phase5_funnel.py` | 137 |
+
+**Known limitations:**
+- LTV view previously used `INNER JOIN` (inflated denominator). **Fixed** to `LEFT JOIN` — see `sql/phase5_funnel.py:67`.
+- MQL → seller mapping assumes 1:1; some deals have NULL `seller_id` (~20%) and cannot be linked to revenue. Those MQLs are counted in `total_mqls` but contribute $0 revenue to LTV.
+- Marketing data (Jun 2017–Jun 2018) and order data (2016–2018) have partial overlap; LTV only measurable for sellers acquired during the marketing period.
 
 ---
 

@@ -1,4 +1,8 @@
-# Olist E-Commerce: Key Insights Log
+# Olist Marketing Funnel: Key Insights Log
+
+> **Data Audit Note (2026-05-12):** The `kpi_ltv_by_channel` view previously used `INNER JOIN` which excluded non-converting MQLs from the denominator, inflating LTV/MQL. Fixed to `LEFT JOIN`. See `sql/phase5_funnel.py:67` for the fix.
+>
+> **Traceability:** Every metric below is traceable to its SQL view. See README [Data Traceability](#) section for the full mapping.
 
 ## Data Overview
 
@@ -399,30 +403,77 @@ ORDER BY cohort_month, month_index;
 
 ---
 
-## Business Recommendations
+## Channel × Lead Behavior Cross-Tabulation (NEW)
 
-### 1. Customer Retention Program (High Impact)
-- **Target**: "At Risk" segment (23,272 customers, 24.1% of base)
-- **Action**: Personalized email campaigns with exclusive offers, loyalty points
-- **Expected Impact**: 5% → 8% repeat rate = ~2,800 additional orders = +$384,000 revenue
+### Why This Matters
 
-### 2. Delivery Bottleneck Investigation (High Impact)
-- **Target**: States with >10% late rate
-- **Action**: Audit seller fulfillment, carrier contracts in those regions
-- **Expected Impact**: Reduce late rate from 7.78% to <5% = +2,000 on-time deliveries, improved reviews
+This cross-tab is the highest-value analysis because it can **change** the recommendation. If "Shark" leads are disproportionately coming from Organic Search, the story becomes *"fix lead scoring on Organic"* rather than *"cut Organic budget"* — a more nuanced, defensible recommendation.
 
-### 3. Leverage High-Satisfaction Categories (Medium Impact)
-- **Target**: books_general_interest (4.45 stars), books_technical (4.37 stars)
-- **Action**: Cross-sell these categories to customers who haven't purchased them
-- **Expected Impact**: Increase overall review scores, reduce returns
+### Source View
 
-### 4. Expand in High-AOV Markets (Medium Impact)
-- **Target**: Paraíba (PB), Acre (AC), Amapá (AP)
-- **Action**: Targeted marketing, seller recruitment in these states
-- **Expected Impact**: Grow orders in premium markets
+**View:** `olist.kpi_channel_lead_behavior` (added 2026-05-12)
+**SQL File:** `sql/phase5_funnel.py:137`
+
+### SQL Definition
+```sql
+CREATE VIEW olist.kpi_channel_lead_behavior AS
+SELECT 
+    mql.origin,
+    cd.lead_behaviour_profile,
+    COUNT(DISTINCT mql.mql_id) AS total_mqls,
+    COUNT(DISTINCT cd.mql_id) AS closed_deals,
+    ROUND(COUNT(DISTINCT cd.mql_id)::NUMERIC 
+        / NULLIF(COUNT(DISTINCT mql.mql_id), 0) * 100, 2) AS conversion_rate_pct
+FROM olist.marketing_qualified_leads mql
+LEFT JOIN olist.closed_deals cd USING (mql_id)
+GROUP BY 1, 2
+ORDER BY 1, 5 DESC;
+```
+
+### Expected Pattern to Investigate
+| Channel | If "Shark" leads concentrate here... | Recommendation becomes... |
+|---------|--------------------------------------|--------------------------|
+| Organic Search | High volume + low conversion + Shark-heavy | Fix lead scoring on Organic, don't cut budget |
+| Paid Search | Low Shark % + high conversion | Keep budget, improve targeting |
+| Social | Moderate Shark % | Add lead qualification before SDR handoff |
+
+> *Data pending rerun after LTV fix. Run `python sql/phase5_funnel.py` to populate.*
+
+---
+
+---
+
+## Business Recommendations (Marketing Funnel)
+
+### 1. Reallocate Budget to Paid Search (High Impact)
+- **Target**: Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
+- **Action**: Shift 30% of Organic Search budget to Paid Search
+- **Derivation**: +900 MQLs × 12% conversion × corrected LTV/MQL → 50% saturation discount
+- **Conservative Estimate**: ~$190K–$227K (pending corrected LTV from Fix 0)
+- **Caveat**: New Paid Search traffic may convert lower; channel saturation risk
+
+### 2. Prioritize "Cat" Leads in SDR Outreach (Medium Impact)
+- **Target**: "Cat" leads (15% conversion vs. 6% for "Shark")
+- **Action**: SDRs call "Cat" first, disqualify "Shark" faster
+- **Derivation**: +1.25pp overall conversion × ~1,500 deals × avg LTV
+- **Conservative Estimate**: ~$65K–$100K
+- **Caveat**: Assumes SDR capacity exists; may cannibalize other profiles
+
+### 3. Investigate Lengthening Sales Cycle (Medium Impact)
+- **Target**: Time-to-close increased 38 → 52 days (36% longer)
+- **Action**: Audit sales process, implement SLA, fast-track "Eagle" leads
+- **Conservative Estimate**: ~$40K–$80K
+- **Caveat**: Market mix may cause natural lengthening
 
 ### Combined 1-Year Impact:
-- **Conservative Estimate**: $800,000+ in additional revenue (~6% growth on $13.17M baseline)
+| Initiative | Estimate | Confidence |
+|------------|----------|------------|
+| Paid Search Reallocation | ~$190K–$227K | Medium |
+| "Cat" Lead Prioritization | ~$65K–$100K | Medium |
+| Sales Cycle Optimization | ~$40K–$80K | Low-Medium |
+| **Total Conservative** | **~$295K–$407K** | Ranges overlap |
+
+> **Note:** Previous estimates (~$800K) assumed fabricated LTV numbers. These conservative estimates apply a 50% saturation discount and document every caveat for interview defensibility.
 
 ---
 
@@ -435,6 +486,17 @@ ORDER BY cohort_month, month_index;
 | Portuguese category names | Confusing for non-Brazilian stakeholders | JOINed to `category_translation` table, COALESCE for missing |
 | Initial repeat customer rate = 0% | Incorrect business insight | Fixed by using `customer_unique_id` instead of `customer_id` |
 | Payment table has multiple rows per order | Inflated payment method counts | Used `payment_sequential = 1` to get primary method |
+
+### Key SQL Views for Marketing Dashboard
+
+| View | Purpose | Source File |
+|------|---------|-------------|
+| `kpi_mql_volume` | MQL count by month + channel | `phase5_funnel.py:36` |
+| `kpi_conversion_rate` | Conversion % by channel | `phase5_funnel.py:52` |
+| `kpi_ltv_by_channel` | LTV per MQL + per seller (LEFT JOIN fix applied) | `phase5_funnel.py:71` |
+| `kpi_lead_behavior` | Conversion by Cat/Eagle/Wolf/Shark | `phase5_funnel.py:90` |
+| `kpi_time_to_close` | Avg days by month | `phase5_funnel.py:121` |
+| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab (NEW) | `phase5_funnel.py:137` |
 
 ### SQL Used for Data Quality Fixes:
 ```sql
@@ -510,15 +572,15 @@ ORDER BY 3 DESC;
 
 ## Interview-Ready Summary
 
-**One-Sentence Project Summary:**
-> "I built a sales & ops dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Power BI, finding that while revenue is growing, only 3% of customers return and 7.78% of deliveries are late - representing $800k+ annual improvement opportunity."
+**One-Sentence Project Summary (Marketing):**
+> "I built a marketing funnel dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Python, finding that Paid Search converts 20% better than Organic and ~$295K–$407K in conservative LTV opportunity — with every metric traceable to its SQL source for interview defensibility."
 
 **5 Numbers to Memorize:**
-1. **Revenue**: $13.17M across 95,832 orders
-2. **Problem**: Only 3% repeat customers, 7.78% late deliveries
-3. **Solution**: Retention campaigns for At-Risk segment, investigate delivery bottlenecks
-4. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Star Schema)
-5. **Differentiator**: RFM segmentation + Cohort analysis (not just basic charts)
+1. **MQLs**: 8,000 (Jun 2017–Jun 2018)
+2. **Conversion**: 18.75% overall; Paid Search 12% vs Organic 11%
+3. **Problem**: LTV denominator bug fixed from INNER JOIN to LEFT JOIN — corrected figures lower but real
+4. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Combined Star Schema)
+5. **Differentiator**: Channel × Lead Behavior cross-tab + conservative estimates with explicit caveats
 
 ---
 

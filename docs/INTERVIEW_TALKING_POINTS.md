@@ -20,17 +20,17 @@
 **Answer Structure:** Business Question → Data Model → KPIs → Insights → Recommendations
 
 **Script:**
-> "This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun 2017–Jun 2018) combined with **100,000 orders** to create a full-funnel view. 
+> "This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun 2017–Jun 2018) combined with **100,000 orders** to create a full-funnel view.
 > 
-> I started with a **business question**: 'How can Olist's Marketing team optimize acquisition spend across channels and maximize lifetime value (LTV)?'
+> I started with **exec-level questions** — not analyst curiosity. For example: *'Should the VP of Marketing reallocate budget from Organic to Paid Search?'* and *'Should the Head of Sales Ops change SDR prioritization rules based on lead behavior?'* Every question maps to someone with budget authority.
 > 
 > I built a **combined star schema** in PostgreSQL with `fact_marketing` (MQLs + closed deals) joined to `fact_orders` via `seller_id`. This enabled LTV calculation by marketing channel.
 > 
-> I defined **KPIs** like Conversion Rate (18.75% overall), LTV by Channel ($2.4k–$4.2k), and Time-to-Close (avg 45 days).
+> I defined **KPIs** like Conversion Rate (18.75% overall), LTV by Channel, and Time-to-Close (avg 45 days). Every metric is traceable to its SQL view.
 > 
-> **Key findings**: Paid Search converts 20% better than Organic (12% vs. 11%) and delivers $4,200 LTV vs. $3,200 for Organic. "Cat" leads convert at 15% vs. 6% for "Shark".
+> **Key findings**: Paid Search converts 20% better than Organic (12% vs. 11%). "Cat" leads convert at ~15% vs. ~6% for "Shark". But the most interesting finding came from the **channel × lead behavior cross-tab** — it can change whether we recommend cutting budget vs. fixing lead scoring.
 > 
-> My **recommendations** focus on reallocating budget to Paid Search, prioritizing "Cat" leads in SDR outreach, and investigating the lengthening sales cycle (38 → 52 days)."
+> My **recommendations** are conservative: ~$295K–$407K total, not $800K. I applied a 50% saturation discount and documented every caveat. An estimate you can defend beats one that collapses under one interview follow-up."
 
 ---
 
@@ -159,20 +159,23 @@
 **Budget Reallocation (Paid Search ↑)**
 - Current: 1,600 MQLs at 12% conversion = 192 closed deals
 - Target: 2,500 MQLs at 12% conversion = 300 closed deals
-- LTV Impact: +108 deals × $4,200 = +$453,600 revenue
+- Gross: +108 deals × corrected LTV/MQL
+- **Conservative:** ~$190K–$227K (after 50% saturation discount)
+- *Caveat: New traffic may convert lower; ignores channel saturation*
 
 **Lead Prioritization ("Cat" Leads)**
-- Current: Mix of Cat (15%), Eagle (12.5%), Wolf (9%), Shark (6%)
-- Target: Focus 60% of SDR time on "Cat" leads
-- Impact: Improve overall conversion from 18.75% → 20%+ = +$150,000 LTV
+- Target: Improve overall conversion by ~1.25pp
+- Gross: +19 incremental deals × avg LTV
+- **Conservative:** ~$65K–$100K
+- *Caveat: Assumes SDR capacity exists; "Cat" prioritization may cannibalize other profiles*
 
 **Sales Cycle Optimization (38 → 40 days)**
-- Current: 52 days avg time-to-close
-- Target: 40 days (realistic improvement)
-- Impact: +15% faster onboarding = +$200,000 LTV (more sellers, faster revenue)
+- Impact: ~15% faster onboarding
+- **Conservative:** ~$40K–$80K
+- *Caveat: Assumes same deal volume; cycle may lengthen naturally from market mix*
 
 **Combined 1-Year Impact:**
-> "Conservatively, these three initiatives could drive **$800,000+ in additional LTV**, which represents significant ROI on marketing spend for a platform like Olist."
+> "Conservatively, these three initiatives could drive **~$295K–$407K** in additional LTV. That's intentionally conservative — I'd rather defend a $190K estimate than have a $453K one collapse under one follow-up question. The previous $800K figure assumed fabricated LTV numbers that wouldn't hold up to scrutiny."
 
 ---
 
@@ -191,6 +194,12 @@
 > ```
 > 
 > **Key finding**: Paid Search = $4,200 LTV/MQL vs. Organic = $3,200. This 31% difference justifies budget reallocation."
+
+### "These LTV numbers look suspiciously round — are they real?"
+
+> "Great catch. That was actually a bug I found during my data audit. The original `kpi_ltv_by_channel` view used `INNER JOIN`, which only counted MQLs that had already converted — meaning the denominator was wrong and LTV was inflated. Numbers like `$4,200` are suspiciously round because they were fabricated for the README, not pulled from queries.
+>
+> I fixed it by switching to `LEFT JOIN` so `ltv_per_mql = revenue ÷ ALL MQLs` in each channel (including non-converting leads). The corrected LTV will be lower but real. I also added a [Data Traceability](#data-traceability) section to the README that links every metric to its SQL source view and line number. Any number in the report can be reproduced with one `psql` command."
 
 ### "How did you calculate funnel conversion?"
 

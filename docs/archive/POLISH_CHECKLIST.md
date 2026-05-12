@@ -1,6 +1,13 @@
 # Portfolio Polish Checklist - Marketing Dashboard
 
-## Integration Status (Completed 2026-05-08)
+## Integration Status (Updated 2026-05-12)
+
+- [x] Fix 0: LTV denominator bug fixed (INNER JOIN → LEFT JOIN in phase5_funnel.py)
+- [x] Fix A: Business questions rewritten as exec-level VP questions
+- [x] Fix B: Channel × Lead Behavior cross-tab view added (kpi_channel_lead_behavior)
+- [x] Fix C: Conservative estimates with caveats replacing fabricated numbers
+- [x] Data traceability section in README linking every metric to its SQL source
+- [x] Interview talking points updated with defensibility narrative
 
 - [x] README with marketing focus (Background, Data Structure, Executive Summary, Insights Deep Dive, Recommendations)
 - [x] North Star Metrics section (Lead Conversion Rate, Marketing Qualified Leads)
