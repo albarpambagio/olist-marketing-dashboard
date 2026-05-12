@@ -39,8 +39,7 @@ This dashboard supports Olist's Marketing team:
 1. **VP Marketing:** Should Olist reallocate 30% of Organic Search budget to Paid Search to maximize LTV per MQL?
 2. **Head of Acquisition:** Do lead behavior profiles at deal stage reveal channel composition differences that should inform channel strategy — specifically, why does Social produce nearly twice the Wolf-profile sellers as other channels?
 3. **VP Sales:** Is the sales cycle compressing (44→24 days) sustainable, or will it revert as deal volume grows?
-4. **Head of Acquisition:** Do lead behavior profiles (Cat/Eagle/Wolf/Shark) vary by channel enough to change channel-level strategy?
-5. **VP Marketing:** Which channel delivers the highest lifetime value per lead — and is the gap large enough to justify budget reallocation?
+4. **VP Marketing:** Which channel delivers the highest lifetime value per lead — and is the gap large enough to justify budget reallocation?
 
 ---
 
@@ -346,6 +345,8 @@ Improve from 5.56% → 8.0%: +33 incremental deals
 33 × $578.59 LTV/seller ≈ $19,093 gross
 → 50% confidence discount (new SDR playbook risk)
 ```
+*Why not target 11.80% (Organic benchmark)? Social's 17.3% Wolf-profile deal mix is a structural channel characteristic, not a process problem that can be fully coached away. Even with Wolf-specific SDR playbooks, some high-maintenance sellers will always close slower. Expecting Social to reach Organic's conversion would require changing the type of seller Social attracts — which is not realistic within a single quarter.*
+
 **Conservative Estimate:** **~$7K–$12K**
 
 ---
@@ -420,24 +421,24 @@ psql -h localhost -p 5433 -d olist -c "SELECT * FROM olist.<view_name>;"
 
 ## Technical Implementation
 
-### SQL Scripts (`/sql/` folder) — NEW
+### SQL Scripts (`/sql/` folder)
 
 | Script | Description |
 |--------|-------------|
 | `01_create_tables.sql` | Schema creation for ALL tables (marketing + e-commerce) |
-| `load_marketing_data.py` | **NEW:** Load marketing funnel CSVs → PostgreSQL |
+| `load_marketing_data.py` | Load marketing funnel CSVs → PostgreSQL |
 | `load_data_v2.py` | Load existing Olist e-commerce tables |
 | `phase2_cleaning_eda.py` | CLEAN framework (marketing data focus) |
-| `phase3_starschema.py` | **NEW:** Combined star schema (fact_marketing + fact_orders) |
+| `phase3_starschema.py` | Combined star schema (fact_marketing + fact_orders) |
 | `phase4_kpis.py` | Marketing KPIs: MQL volume, conversion rate, LTV by channel |
-| `phase5_funnel.py` | **NEW:** Funnel analysis, lead behavior, time-to-close |
+| `phase5_funnel.py` | Funnel analysis, lead behavior, time-to-close |
 
 ### Dashboard Pages
 
 1. **Marketing Funnel Overview** — MQL volume, conversion rate, deals won (KPI cards + trend)
 2. **Channel Performance** — Conversion rate by origin, LTV by channel (bar + scatter)
 3. **Lead Quality** — Lead behavior profiles (Cat/Eagle/Wolf/Shark), time-to-close by segment
-4. **LTV Analysis** — Revenue by marketing channel, cohort retention of sellers**
+4. **LTV Analysis** — Revenue by marketing channel, cohort retention of sellers
 
 ---
 
@@ -474,20 +475,20 @@ python sql/phase5_funnel.py
 ```
 olist-marketing-dashboard/
 ├── data/                          # CSV files (marketing funnel + e-commerce)
-│   ├── olist_marketing_qualified_leads_dataset.csv   # NEW
-│   ├── olist_closed_deals_dataset.csv             # NEW
+│   ├── olist_marketing_qualified_leads_dataset.csv
+│   ├── olist_closed_deals_dataset.csv
 │   ├── olist_orders_dataset.csv
 │   ├── olist_order_items_dataset.csv
 │   ├── olist_sellers_dataset.csv
 │   └── ... (other e-commerce tables)
 ├── sql/                           # SQL + Python ETL scripts
 │   ├── 01_create_tables.sql
-│   ├── load_marketing_data.py      # NEW
+│   ├── load_marketing_data.py
 │   ├── load_data_v2.py
 │   ├── phase2_cleaning_eda.py
-│   ├── phase3_starschema.py       # NEW: combined schema
+│   ├── phase3_starschema.py       # Combined schema
 │   ├── phase4_kpis.py
-│   └── phase5_funnel.py             # NEW: funnel analysis
+│   └── phase5_funnel.py             # Funnel analysis
 ├── logs/                          # Analysis and data quality logs
 ├── docs/                          # Dashboard guide + DASH framework
 ├── INTERVIEW_TALKING_POINTS.md   # Marketing-specific Q&A
