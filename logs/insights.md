@@ -430,50 +430,52 @@ GROUP BY 1, 2
 ORDER BY 1, 5 DESC;
 ```
 
-### Expected Pattern to Investigate
-| Channel | If "Shark" leads concentrate here... | Recommendation becomes... |
-|---------|--------------------------------------|--------------------------|
-| Organic Search | High volume + low conversion + Shark-heavy | Fix lead scoring on Organic, don't cut budget |
-| Paid Search | Low Shark % + high conversion | Keep budget, improve targeting |
-| Social | Moderate Shark % | Add lead qualification before SDR handoff |
+### Actual Finding (from database)
+**Key question answered:** Are "Shark" leads disproportionately from Organic Search?
 
-> *Data pending rerun after LTV fix. Run `python sql/phase5_funnel.py` to populate.*
+**Answer: No.** Paid Search has the highest Shark concentration (4.6% of its deals vs 1.5% for Organic). Absolute numbers are small (9 vs 4 deals). This **reverses** the hypothesis — if the concern is Shark lead quality, Paid Search is a slightly bigger contributor, not Organic.
+
+**Cross-tab output:**
+| Channel | MQLs | Channel Conv% | Cat (% of channel deals) | Eagle | Wolf | Shark |
+|---------|------|--------------|-------------------------|-------|------|-------|
+| Organic Search | 2,296 | 11.80% | 48.0% | 14.0% | 9.6% | 1.5% |
+| Paid Search | 1,586 | 12.30% | 48.2% | 17.4% | 10.8% | **4.6%** |
+| Social | 1,350 | 5.56% | 41.3% | 18.7% | 17.3% | 5.3% |
+
+**Practical implication:** Lead behavior profiles can't predict MQL conversion (deal-stage data only). Channel-level profile differences exist but sample sizes are too small for confident decisions.
 
 ---
 
 ---
 
-## Business Recommendations (Marketing Funnel)
+## Business Recommendations (Marketing Funnel) — Corrected
 
-### 1. Reallocate Budget to Paid Search (High Impact)
-- **Target**: Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
-- **Action**: Shift 30% of Organic Search budget to Paid Search
-- **Derivation**: +900 MQLs × 12% conversion × corrected LTV/MQL → 50% saturation discount
-- **Conservative Estimate**: ~$190K–$227K (pending corrected LTV from Fix 0)
-- **Caveat**: New Paid Search traffic may convert lower; channel saturation risk
+### 1. Fix Social Channel Conversion
+- **Target**: Social has 1,350 MQLs (16.9%) at 5.56% conversion — worst among major channels
+- **Action**: Audit lead quality, add scoring before SDR handoff
+- **Derivation**: Match Organic benchmark (11.80%) = +84 incremental deals × $578.59 LTV = $48K gross → 50% discount
+- **Conservative Estimate**: ~$15K–$25K
+- **Caveat**: Social lead quality may be fundamentally different from Organic
 
-### 2. Prioritize "Cat" Leads in SDR Outreach (Medium Impact)
-- **Target**: "Cat" leads (15% conversion vs. 6% for "Shark")
-- **Action**: SDRs call "Cat" first, disqualify "Shark" faster
-- **Derivation**: +1.25pp overall conversion × ~1,500 deals × avg LTV
-- **Conservative Estimate**: ~$65K–$100K
-- **Caveat**: Assumes SDR capacity exists; may cannibalize other profiles
+### 2. Incrementally Increase Paid Search
+- **Target**: Increase Paid Search budget 10–15%
+- **Action**: A/B test ad copy; monitor conversion at higher spend
+- **Derivation**: +200 MQLs × 12.30% = +25 deals × $777.65 LTV = $19K → 50% discount
+- **Conservative Estimate**: ~$8K–$12K
+- **Caveat**: Higher spend may attract lower-quality traffic
 
-### 3. Investigate Lengthening Sales Cycle (Medium Impact)
-- **Target**: Time-to-close increased 38 → 52 days (36% longer)
-- **Action**: Audit sales process, implement SLA, fast-track "Eagle" leads
-- **Conservative Estimate**: ~$40K–$80K
-- **Caveat**: Market mix may cause natural lengthening
+### 3. No Action Needed on Sales Cycle
+- Time-to-close is compressing (44→24 days), not lengthening
+- Monitor monthly; investigate if it rises above 45 days
 
 ### Combined 1-Year Impact:
 | Initiative | Estimate | Confidence |
 |------------|----------|------------|
-| Paid Search Reallocation | ~$190K–$227K | Medium |
-| "Cat" Lead Prioritization | ~$65K–$100K | Medium |
-| Sales Cycle Optimization | ~$40K–$80K | Low-Medium |
-| **Total Conservative** | **~$295K–$407K** | Ranges overlap |
+| Social Conversion Fix | ~$15K–$25K | Medium |
+| Paid Search Incremental | ~$8K–$12K | Low |
+| **Total Conservative** | **~$23K–$37K** | |
 
-> **Note:** Previous estimates (~$800K) assumed fabricated LTV numbers. These conservative estimates apply a 50% saturation discount and document every caveat for interview defensibility.
+> **Note:** Corrected from fabricated ~$800K estimate. Real LTV/MQL ($95.61 vs fabricated $4,200) means real impact is proportionally smaller. Every number is traceable to its SQL view.
 
 ---
 
@@ -573,14 +575,14 @@ ORDER BY 3 DESC;
 ## Interview-Ready Summary
 
 **One-Sentence Project Summary (Marketing):**
-> "I built a marketing funnel dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Python, finding that Paid Search converts 20% better than Organic and ~$295K–$407K in conservative LTV opportunity — with every metric traceable to its SQL source for interview defensibility."
+> "I built a marketing funnel dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Python, finding that Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but Social's 5.56% conversion on 1,350 MQLs is the bigger opportunity — with every metric traceable to its SQL source after fixing fabricated numbers."
 
 **5 Numbers to Memorize:**
-1. **MQLs**: 8,000 (Jun 2017–Jun 2018)
-2. **Conversion**: 18.75% overall; Paid Search 12% vs Organic 11%
-3. **Problem**: LTV denominator bug fixed from INNER JOIN to LEFT JOIN — corrected figures lower but real
+1. **MQLs**: 8,000 (Jun 2017–Jun 2018), 842 closed deals (10.5% conversion — corrected from fabricated 18.75%)
+2. **LTV/MQL**: Paid Search $95.61, Organic $89.32 (corrected from fabricated $4,200/$3,200 via LEFT JOIN fix)
+3. **Problem**: LTV denominator bug (INNER JOIN → LEFT JOIN) — corrected numbers 98% lower than fabricated
 4. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Combined Star Schema)
-5. **Differentiator**: Channel × Lead Behavior cross-tab + conservative estimates with explicit caveats
+5. **Differentiator**: Data traceability — every number linked to its SQL view and line number
 
 ---
 

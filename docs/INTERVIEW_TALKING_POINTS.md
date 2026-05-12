@@ -26,11 +26,11 @@
 > 
 > I built a **combined star schema** in PostgreSQL with `fact_marketing` (MQLs + closed deals) joined to `fact_orders` via `seller_id`. This enabled LTV calculation by marketing channel.
 > 
-> I defined **KPIs** like Conversion Rate (18.75% overall), LTV by Channel, and Time-to-Close (avg 45 days). Every metric is traceable to its SQL view.
+> I defined **KPIs** like Conversion Rate (10.5% overall), LTV by Channel ($17–$96/MQL), and Time-to-Close (24–44 days). Every metric is traceable to its SQL view — I learned this the hard way after discovering the original README had fabricated numbers.
 > 
-> **Key findings**: Paid Search converts 20% better than Organic (12% vs. 11%). "Cat" leads convert at ~15% vs. ~6% for "Shark". But the most interesting finding came from the **channel × lead behavior cross-tab** — it can change whether we recommend cutting budget vs. fixing lead scoring.
+> **Key findings**: Paid Search leads in LTV/MQL ($95.61) but the gap to Organic ($89.32) is only ~7% — much narrower than the "12% vs 11% conversion" story suggested. Lead behavior profiles turned out to be deal-stage data, not MQL predictors. And the sales cycle was compressing (44→24 days), not lengthening.
 > 
-> My **recommendations** are conservative: ~$295K–$407K total, not $800K. I applied a 50% saturation discount and documented every caveat. An estimate you can defend beats one that collapses under one interview follow-up."
+> My **recommendations** are conservative: ~$23K–$37K total, not $800K. I apply a 50% confidence discount and document every caveat. A $12K estimate you can defend beats a $453K one that collapses under one follow-up question."
 
 ---
 
@@ -73,8 +73,8 @@
 **Challenge2: Date Range Mismatch**
 > "Marketing data is Jun 2017–Jun 2018, but e-commerce data is 2016–2018. LTV calculations only work for the overlapping period. I documented this scope limitation in the insights log."
 
-**Challenge3: Lead Behavior Profiles**
-> "Leads are tagged as 'Cat', 'Eagle', 'Wolf', 'Shark' based on DISC profiles. I had to research what these mean (Cat = reliable, Shark = high-risk) to interpret conversion rates correctly."
+**Challenge3: Lead Behavior Profiles — Stage Mismatch**
+> "This was the most interesting data challenge. The lead behavior profiles (Cat/Eagle/Wolf/Shark) are **only recorded in the closed_deals table**, not in the MQL table. So they describe the seller's profile after conversion, not the lead's profile during qualification. This meant the original 'Cat leads convert at 15%' narrative was wrong — that was actually '15% of closed deals have the Cat profile.' I had to rewrite the analysis to reflect this limitation."
 
 **Challenge4: Conversion Rate Calculation**
 > "Conversion = Closed Deals / Total MQLs. But some MQLs have multiple deals — I had to use `COUNT(DISTINCT mql_id)` to avoid double-counting."
@@ -88,17 +88,19 @@
 | Insight | Value | Business Meaning |
 |---------|-------|------------------|
 | Total MQLs | 8,000 | Top-of-funnel volume |
-| Closed Deals | ~1,500 (18.75% conversion) | Successfully acquired sellers |
-| Top Channel (Conversion) | Paid Search: 12.0% | Budget reallocation opportunity |
-| Top Channel (LTV) | Paid Search: $4,200/MQL | High-value acquisition |
-| Lead Behavior (Best) | "Cat": 15.0% conversion | Prioritize in SDR outreach |
-| Time-to-Close Trend | 38 → 52 days (36% longer) | Sales cycle lengthening |
+| Closed Deals | 842 (10.5% conversion) | Successfully acquired sellers |
+| Top Channel (Conversion) | Paid Search: 12.3% | Higher but gap to Organic (11.8%) is only ~7% |
+| Top Channel (LTV) | Paid Search: $95.61/MQL | Not the fabricated $4,200 — corrected with LEFT JOIN |
+| Social (Problem) | 1,350 MQLs at 5.56% conversion | High volume, low conversion — biggest drag |
+| Time-to-Close Trend | 44 → 24 days (compressing) | Opposite of fabricated narrative — cycle is improving |
 
 ### "Tell me something surprising you found"
 
-> "The most surprising finding was that **Paid Search delivers 31% higher LTV** than Organic Search ($4,200 vs. $3,200 per MQL), despite Organic having 35% higher volume (2,800 vs. 1,600 MQLs). This suggests Organic traffic has quality issues — maybe SEO attracts browsers, not buyers."
-
-> "Another surprise: **Time-to-close increased 36%** (38 → 52 days) from Dec 2017 to Apr 2018. This suggests market saturation or sales process inefficiency — Olist needs to investigate why deals take longer to close."
+> "The most surprising finding was that **the original README numbers were fabricated**. The LTV figure was $4,200/seller — which is suspiciously round. When I actually ran the corrected query (switching from INNER JOIN to LEFT JOIN to include non-converting MQLs), the real LTV/MQL was $95.61. That's a 98% difference. It taught me to always, always trace every number back to its SQL source.
+>
+> "Another surprise: the sales cycle wasn't lengthening at all. It was compressing from 44 to 24 days. The fabricated '38→52 days' trend would have sent the team investigating a problem that didn't exist."
+>
+> "And the lead behavior profiles — I assumed they predicted conversion, but they're only recorded at deal stage. 'Cat leads convert at 15%' is actually 'Cat leads make up 48% of closed deals.' Two completely different stories."
 
 ---
 
@@ -106,20 +108,19 @@
 
 ### "What recommendations did you make?"
 
-1. **Reallocate Budget to Paid Search** (High Impact)
-   - Target: Increase Paid Search MQLs from 1,600 → 2,500 (+56%)
-   - Action: Shift 30% of Organic Search budget to Paid Search
-   - Expected Impact: +108 closed deals = +$453,600 LTV (108 × $4,200)
+1. **Fix Social Channel Conversion** (Medium Impact)
+   - Target: Social has 1,350 MQLs (16.9% of volume) but 5.56% conversion
+   - Action: Audit lead quality, add scoring before SDR handoff
+   - Expected Impact: ~$15K–$25K if conversion improves to match Organic
 
-2. **Prioritize "Cat" Leads in SDR Outreach** (Medium Impact)
-   - Target: "Cat" leads (15% conversion vs. 6% for "Shark")
-   - Action: SDRs call "Cat" leads first, disqualify "Shark" faster
-   - Expected Impact: Improve overall conversion from 18.75% → 20%+
+2. **Incrementally Increase Paid Search** (Low-Medium Impact)
+   - Target: Increase Paid Search budget by 10–15%
+   - Action: A/B test ad copy targeting seller segments
+   - Expected Impact: ~$8K–$12K (not $453K — the real LTV gap is too small for aggressive reallocation)
 
-3. **Investigate Lengthening Sales Cycle** (Medium Impact)
-   - Target: Time-to-close increased 38 → 52 days (36% longer)
-   - Action: Audit sales process, implement SLA (first contact within 24 hours)
-   - Expected Impact: Reduce time-to-close from 52 → 40 days = +$200,000 LTV (faster onboarding)
+3. **Maintain Sales Cycle Efficiency** (Informational)
+   - Target: Cycle is compressing (44→24 days) — just monitor
+   - Action: Track monthly as leading indicator; investigate if >45 days
 
 ### "How would you prioritize these recommendations?"
 
@@ -156,44 +157,42 @@
 
 ### "What do these recommendations mean for the business?"
 
-**Budget Reallocation (Paid Search ↑)**
-- Current: 1,600 MQLs at 12% conversion = 192 closed deals
-- Target: 2,500 MQLs at 12% conversion = 300 closed deals
-- Gross: +108 deals × corrected LTV/MQL
-- **Conservative:** ~$190K–$227K (after 50% saturation discount)
-- *Caveat: New traffic may convert lower; ignores channel saturation*
+**Social Channel Conversion Fix**
+- Current: 1,350 MQLs at 5.56% conversion = 75 deals
+- If matched to 11.80% (Organic benchmark): +84 deals × $578.59 LTV = ~$48K gross
+- **Conservative:** ~$15K–$25K (50% confidence discount)
+- *Caveat: Social lead quality may be fundamentally different; process change risk*
 
-**Lead Prioritization ("Cat" Leads)**
-- Target: Improve overall conversion by ~1.25pp
-- Gross: +19 incremental deals × avg LTV
-- **Conservative:** ~$65K–$100K
-- *Caveat: Assumes SDR capacity exists; "Cat" prioritization may cannibalize other profiles*
-
-**Sales Cycle Optimization (38 → 40 days)**
-- Impact: ~15% faster onboarding
-- **Conservative:** ~$40K–$80K
-- *Caveat: Assumes same deal volume; cycle may lengthen naturally from market mix*
+**Paid Search Incremental Budget**
+- Current: 1,586 MQLs at 12.30% conversion = 195 deals
+- Target: +200 MQLs at same rate = +25 deals × $777.65 LTV = ~$19K gross
+- **Conservative:** ~$8K–$12K (50% saturation discount)
+- *Caveat: Higher spend may attract lower-quality traffic*
 
 **Combined 1-Year Impact:**
-> "Conservatively, these three initiatives could drive **~$295K–$407K** in additional LTV. That's intentionally conservative — I'd rather defend a $190K estimate than have a $453K one collapse under one follow-up question. The previous $800K figure assumed fabricated LTV numbers that wouldn't hold up to scrutiny."
+> "Conservatively, these improvements could drive **~$23K–$37K** in additional LTV. That's intentionally conservative. The previous $800K figure was built on fabricated numbers: $4,200 LTV, 1,500 deals, and a falsified sales cycle trend. I'd rather defend a $12K estimate with real SQL queries than try to explain how I got $453K from data that doesn't exist."
 
 ---
 
 ## Technical Deep-Dives
 
-### "Explain your LTV calculation by channel"
+### "Explain your LTV calculation by channel — and the bug you fixed"
 
-> "Lifetime Value (LTV) = Total Revenue from Seller / Number of MQLs in Channel:
-> 
+> "The original LTV calculation had a bug: it used `INNER JOIN` between MQLs, closed deals, sellers, and orders. This meant the `COUNT(DISTINCT mql.mql_id)` denominator only counted MQLs that had already closed a deal and had orders — inflating LTV/MQL dramatically.
+>
+> I fixed it by switching to `LEFT JOIN`, so non-converting MQLs are included in the denominator:
+>
 > ```sql
 > SELECT origin,
->     SUM(fo.revenue) / COUNT(DISTINCT mql.mql_id) AS ltv_per_mql
-> FROM fact_marketing fm
-> JOIN fact_orders fo ON fm.seller_id = fo.seller_id
+>     ROUND(SUM(fo.revenue)::NUMERIC / COUNT(DISTINCT mql.mql_id), 2) AS ltv_per_mql
+> FROM olist.marketing_qualified_leads mql
+> LEFT JOIN olist.closed_deals cd USING (mql_id)
+> LEFT JOIN olist.sellers s ON cd.seller_id = s.seller_id
+> LEFT JOIN olist.fact_orders fo ON s.seller_id = fo.seller_id
 > GROUP BY 1
 > ```
 > 
-> **Key finding**: Paid Search = $4,200 LTV/MQL vs. Organic = $3,200. This 31% difference justifies budget reallocation."
+> **Impact**: Paid Search went from $4,200 LTV/MQL (fabricated) to $95.61 (real). The 31% 'Paid Search vs Organic advantage' collapsed from $4,200 vs $3,200 (fabricated) to $95.61 vs $89.32 (real) — a much narrower gap."
 
 ### "These LTV numbers look suspiciously round — are they real?"
 
@@ -236,28 +235,28 @@
 
 ### "Tell me about a time you found a marketing inefficiency"
 
-> "For this project, I discovered that **Organic Search drives 35% of MQLs but only converts at 11%** (same as Direct traffic with 10% volume). 
+> "For this project, I discovered that **Social generates 1,350 MQLs (16.9% of total) but converts at only 5.56%** — the lowest among major channels. Meanwhile, Paid Search converts at 12.30% with 1,586 MQLs.
 > 
-> I quantified it: Organic = 2,800 MQLs × 11% = 308 deals. Paid Search = 1,600 MQLs × 12% = 192 deals. 
+> I quantified it: if Social converted at the same rate as Organic (11.80%), it would generate ~159 deals instead of 75 — that's +84 additional sellers.
 > 
-> Despite Organic having 75% more MQLs, it only delivers 60% more deals. This suggests traffic quality issues — maybe SEO attracts browsers, not serious sellers. I recommended shifting 30% of Organic budget to Paid Search."
+> This is a bigger opportunity than the typical 'shift budget from Organic to Paid Search' story. Social has high volume but terrible conversion — the fix might be lead quality, not budget allocation."
 
 ### "How do you prioritize marketing channels?"
 
-> "I use the 80/20 rule: 20% of channels deliver 80% of LTV. For this analysis:
-> - **Must-invest**: Paid Search ($4,200 LTV, 12% conversion)
-> - **Should-monitor**: Direct traffic ($3,800 LTV, 11% conversion)
-> - **Should-optimize**: Organic Search ($3,200 LTV, 35% volume but low conversion)
-> - **Should-disqualify**: "Shark" leads (6% conversion, high maintenance)"
+> "I look at conversion × LTV together, not in isolation. For this analysis:
+> - **Highest conversion**: Paid Search (12.30%) and Organic (11.80%) — but the gap is only 7%, much smaller than the fabricated numbers suggested
+> - **Highest LTV/MQL**: Paid Search ($95.61) and Organic ($89.32) — similar gap
+> - **Biggest opportunity**: Social (5.56% conversion with 1,350 MQLs) — fixing this has higher upside than budget reallocation between close-performing channels
+> - **Lowest priority**: Email (3.04%) and Other (2.67%) — too small to optimize"
 
 ### "How do you ensure data quality for marketing analytics?"
 
-> "I use the CLEAN framework:
+> "I use the CLEAN framework — and I have a particularly good story here because I found my own fabricated data:
 > 1. **Conceptualize**: Grain = one MQL, metrics = conversion/LTV, dimensions = channel/behavior
-> 2. **Locate**: Missing seller_id in 20% of closed deals (can't link to orders)
-> 3. **Evaluate**: Date range mismatch (Marketing 2017–2018, E-Comm 2016–2018)
-> 4. **Augment**: Added `days_to_close = won_date - first_contact_date`
-> 5. **Note**: All issues logged in `logs/phase2_cleaning_eda.log.md`"
+> 2. **Locate**: Missing seller_id in 20% of closed deals; also found the original README had fabricated LTV numbers ($4,200 vs actual $95.61)
+> 3. **Evaluate**: INNER JOIN bug inflated LTV denominator; lead behavior profiles are deal-stage only, not MQL-stage
+> 4. **Augment**: Added `days_to_close = won_date - first_contact_date`; added cross-tab view; created monthly trend view
+> 5. **Note**: Every issue logged, and the README now has a Data Traceability section linking every metric to its SQL view. If a hiring manager asks 'where does $95.61 come from?', I can show them the exact query and row output."
 
 ---
 
@@ -265,14 +264,14 @@
 
 **Memorize These 5 Things:**
 
-1. **MQLs**: 8,000 leads (Jun 2017–Jun 2018)
-2. **Conversion**: Paid Search 12% vs. Organic 11% (budget reallocation opportunity)
-3. **LTV**: Paid Search $4,200 vs. Organic $3,200 per MQL
-4. **Lead Behavior**: "Cat" leads 15% conversion (prioritize in SDR outreach)
-5. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Combined Star Schema)
+1. **MQLs**: 8,000 leads, 842 closed deals, 10.5% conversion (not the fabricated 18.75%)
+2. **Conversion**: Paid Search 12.3% vs. Organic 11.8% (narrow gap, not the claimed 20% better)
+3. **LTV**: Paid Search $95.61/MQL — corrected from fabricated $4,200 via LEFT JOIN fix
+4. **Lead Behavior**: Profiles are deal-stage only — 48% Cat, 15% Eagle, 11% Wolf, 3% Shark of closed deals
+5. **Key lesson**: Every number must be traceable to its SQL source; fabricated numbers collapse under scrutiny
 
 **One-Sentence Project Summary:**
-> "I built a marketing funnel dashboard for Olist using PostgreSQL and Power BI, finding Paid Search converts 20% better than Organic and delivers $4,200 LTV — representing $800k+ annual LTV opportunity."
+> "I built a marketing funnel dashboard for Olist using PostgreSQL and Python ETL, finding Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but the biggest opportunity is fixing Social's 5.56% conversion — and I documented every data limitation so the numbers can survive an interview."
 
 ---
 

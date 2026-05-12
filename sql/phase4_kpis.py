@@ -26,6 +26,7 @@ def create_kpi_views():
     cur.execute("DROP VIEW IF EXISTS olist.kpi_delivery_performance CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.kpi_customer_metrics CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.kpi_seller_performance CASCADE")
+    cur.execute("DROP VIEW IF EXISTS olist.kpi_sales_mix CASCADE")
     conn.commit()
     print("   Done")
     

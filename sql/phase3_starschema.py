@@ -63,7 +63,7 @@ def create_marketing_schema():
     conn.commit()
     print("   dim_channel created")
     
-    # Create dim_marketing (marketing qualified leads)
+    # Create dim_marketing (marketing qualified leads + closed deals)
     print("\n4. Creating dim_marketing...")
     cur.execute("""
         CREATE OR REPLACE VIEW olist.dim_marketing AS
@@ -72,9 +72,9 @@ def create_marketing_schema():
             mql.first_contact_date,
             mql.origin,
             mql.landing_page_id,
-            mql.lead_behaviour_profile,
-            mql.business_segment,
-            mql.lead_type,
+            cd.lead_behaviour_profile,
+            cd.business_segment,
+            cd.lead_type,
             cd.seller_id,
             cd.won_date,
             cd.has_company,
@@ -108,7 +108,7 @@ def create_marketing_schema():
             fo.review_score,
             fo.is_late,
             fo.is_repeat_customer,
-            DATE_PART('day', dm.won_date - dm.first_contact_date) AS days_to_close
+            (dm.won_date::date - dm.first_contact_date::date) AS days_to_close
         FROM olist.dim_marketing dm
         LEFT JOIN olist.sellers s ON dm.seller_id = s.seller_id
         LEFT JOIN olist.fact_orders fo ON s.seller_id = fo.seller_id
