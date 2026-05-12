@@ -2,6 +2,21 @@
 
 > **Scenario:** This analysis was prepared for **Olist's Q2 2018 Marketing Review**. The deliverable is a **channel strategy brief** supporting the VP Marketing in Q3 2018 budget allocation. The central question: which acquisition channels deliver the highest lifetime value per lead — and should the budget mix change?
 
+## Table of Contents
+
+- [Background & Overview](#background--overview)
+- [Data Structure Overview](#data-structure-overview)
+- [Executive Summary](#executive-summary)
+- [North Star Metrics](#north-star-metrics)
+- [Insights Deep Dive](#insights-deep-dive)
+  - [Marketing Funnel Performance](#marketing-funnel-performance)
+  - [Lead Behavior Analysis](#lead-behavior-analysis)
+  - [Lifetime Value (LTV) by Channel](#lifetime-value-ltv-by-channel)
+  - [Time-to-Close Analysis](#time-to-close-analysis)
+- [Recommendations](#recommendations)
+- [Data Traceability](#data-traceability)
+- [Technical Implementation](#technical-implementation)
+
 ## Background & Overview
 
 This project analyzes **8,000 Marketing Qualified Leads (MQLs)** from Olist (Jun 2017–Jun 2018) combined with **100,000 orders** to create a full-funnel view. The analysis focuses on **channel performance, lead conversion, and lifetime value (LTV)** to support Olist's Marketing team in acquisition budget decisions.
