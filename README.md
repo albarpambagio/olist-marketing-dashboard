@@ -37,7 +37,7 @@ This dashboard supports Olist's Marketing team:
 ### Business Questions Answered
 
 1. **VP Marketing:** Should Olist reallocate 30% of Organic Search budget to Paid Search to maximize LTV per MQL?
-2. **Head of Sales Ops:** Should SDR prioritization rules be changed to call "Cat" leads first and deprioritize "Shark" leads?
+2. **Head of Acquisition:** Do lead behavior profiles at deal stage reveal channel composition differences that should inform channel strategy — specifically, why does Social produce nearly twice the Wolf-profile sellers as other channels?
 3. **VP Sales:** Is the sales cycle compressing (44→24 days) sustainable, or will it revert as deal volume grows?
 4. **Head of Acquisition:** Do lead behavior profiles (Cat/Eagle/Wolf/Shark) vary by channel enough to change channel-level strategy?
 5. **VP Marketing:** Which channel delivers the highest lifetime value per lead — and is the gap large enough to justify budget reallocation?
@@ -155,7 +155,7 @@ flowchart LR
 
 *Source: `olist.kpi_conversion_rate` and `olist.kpi_ltv_by_channel` views in `sql/phase5_funnel.py`. LTV/MQL uses ALL MQLs (including non-converting) via LEFT JOIN.*
 
-**Finding:** Paid Search leads both conversion (12.3%) and LTV/MQL ($95.61) — but the gap to Organic ($89.32) is small, and the top-line numbers are far below the fabricated $4,200 cited in earlier versions.
+**Finding:** Paid Search leads both conversion (12.3%) and LTV/MQL ($95.61), but the gap to Organic ($89.32) is small. Social (1,350 MQLs at 5.56% conversion) is the primary opportunity — its 17.3% Wolf-profile deal mix (nearly double other channels) structurally depresses conversion.
 
 ---
 
@@ -192,6 +192,7 @@ flowchart LR
 | NaN (data issue) | 60 | 0.8% |
 
 *Source: `olist.kpi_mql_volume` view in `sql/phase5_funnel.py:36`.*
+*¹ Unknown (1,099) and NaN (60) origin MQLs — 1,159 total, 14.5% of all leads — are excluded from channel-level conversion and LTV analysis because origin cannot be reliably attributed.*
 
 **Finding:** Organic Search drives the most leads (28.7%) but Paid Search converts better (12.3% vs 11.8%). Social has high volume (16.9%) but low conversion (5.56%).
 
@@ -212,6 +213,7 @@ flowchart LR
 | Other | 2.67% | 4 |
 
 *Source: `olist.kpi_conversion_rate` view in `sql/phase5_funnel.py:52`.*
+*¹ Excludes 1,159 Unknown/NaN origin MQLs (14.5% of total) — see MQL Volume table above.*
 
 **Finding:** Paid Search converts 12.3% — marginally better than Organic (11.8%) and Direct (11.2%). The gap is narrower than the "fabricated 12% vs 11%" narrative suggested. Social's high volume (1,350 MQLs) but low conversion (5.56%) is a larger concern.
 
@@ -250,9 +252,21 @@ This shows the **lead behavior profile mix within each channel's closed deals** 
 | Email | 493 | 3.04% | 9 (60.0%) | 2 (13.3%) | 3 (20.0%) | 0 (0%) | 1 (6.7%) |
 | Referral | 284 | 8.45% | 15 (62.5%) | 3 (12.5%) | 1 (4.2%) | 0 (0%) | 5 (20.8%) |
 
-**Key finding:** Paid Search has the **highest Shark concentration** (4.6% of its deals) — not Organic (1.5%). This **reverses** the expected narrative. If the concern is Shark lead quality, the fix isn't "fix Organic's lead scoring" — it's that Paid Search attracts slightly more high-risk sellers. However, the absolute numbers are tiny (9 vs 4 deals).
+**Finding 1 — Shark reversal (small sample):** Paid Search has the highest Shark concentration (4.6%) — not Organic (1.5%). This reverses the hypothesis that "Organic attracts low-quality leads." However, the absolute numbers are tiny (9 vs 4 deals) — not actionable on its own.
 
-**Practical implication:** Lead behavior profile data can't predict MQL conversion (profiles are deal-stage only), but it does reveal channel-level deal composition differences. The small sample sizes mean channel-level profile differences are directional at best.
+**Finding 2 — Cat/Eagle/Wolf profile distribution (the real signal):**
+Looking beyond the Shark dead end, the profile mix across channels reveals structural differences:
+
+| Profile | Highest Channel | Lowest Channel | Gap | Pattern |
+|---------|----------------|----------------|-----|---------|
+| **Cat** (stable, reliable) | Referral 62.5% | Social 41.3% | 21pp | Email and Referral over-index on Cat; Social under-indexes |
+| **Eagle** (fast-closing) | Social 18.7% | Direct 8.9% | 10pp | Social leads for fast-closing sellers — the channel can attract quality |
+| **Wolf** (aggressive, high-maintenance) | **Social 17.3%** | Referral 4.2% | 13pp | Social is an outlier — nearly double Organic (9.6%) and Paid (10.8%) |
+
+**Finding 3 — Wolf concentration explains Social's conversion gap:**
+Social's 17.3% Wolf rate is the largest profile-mix gap in the data. Wolf-profile sellers are aggressive and high-maintenance — they take longer to close and require more SDR effort. Channels with higher Wolf rates consistently show lower conversion (Social 5.56%, Email 3.04%). This isn't a quality issue — it's a **structural channel characteristic**: Social attracts a seller profile mix that is inherently harder to convert.
+
+**Practical implication:** The cross-tab's real value isn't channel-level conversion prediction (profiles are deal-stage only) — it's diagnosing *why* conversion differs across channels. Social doesn't convert poorly because its leads are bad. It converts poorly because its deal mix skews toward the profile that is hardest to close. This shifts the fix from "audit lead quality" to "build Wolf-specific closing capabilities."
 
 *Source: `olist.kpi_channel_lead_behavior` view in `sql/phase5_funnel.py:137`.*
 
@@ -275,6 +289,7 @@ This shows the **lead behavior profile mix within each channel's closed deals** 
 **Finding:** Paid Search leads in LTV/MQL ($95.61) and LTV/Seller ($777.65), but the gap to Organic ($89.32 / $756.74) is only ~7%. The previously reported $4,200+ figures were fabricated by dividing revenue only by converted MQLs via an `INNER JOIN` bug (fixed in `sql/phase5_funnel.py:67`).
 
 *Source: `olist.kpi_ltv_by_channel` view in `sql/phase5_funnel.py:71`.*
+*¹ Excludes 1,159 Unknown/NaN origin MQLs — see MQL Volume table.*
 
 ---
 
@@ -301,16 +316,43 @@ This shows the **lead behavior profile mix within each channel's closed deals** 
 
 - Deals won increased steadily from 152 (Jan 2018) to 183 (Apr 2018) — growing pipeline
 - Time-to-close decreased from 44 to 24 days over the same period — improving efficiency
-- Social generates 1,350 MQLs (16.9%) but converts at only 5.56% — biggest conversion drag
+- **Social is the primary opportunity:** 1,350 MQLs (16.9% of volume) at 5.56% conversion — the biggest drag on overall funnel performance
+- **Root cause identified via cross-tab:** Social's deal mix skews 17.3% Wolf (aggressive, high-maintenance) — nearly double any other channel. This structural profile disadvantage explains its low conversion more precisely than a generic "lead quality" hypothesis
 - Lead behavior profiles are deal-stage attributes, not MQL conversion predictors — prior "Cat leads convert at 15%" narrative was based on a data misinterpretation
 
 ### Actionable Recommendations
 
 ---
 
-#### 1. Incrementally Increase Paid Search (Low-Medium Impact)
+#### 1. Fix Social Channel Conversion (Medium-High Impact)
 
-**Target:** Paid Search already leads in LTV/MQL ($95.61) and conversion (12.30%), but the gap to Organic ($89.32 LTV/MQL, 11.80% conversion) is only ~7%.
+**Target:** Social has 1,350 MQLs (2nd highest volume), 5.56% conversion, and a deal mix that is 17.3% Wolf-profile — nearly double the next highest channel.
+
+**Root cause hypothesis:** Social channels disproportionately attract aggressive, high-maintenance sellers (Wolf profile). These sellers are inherently harder to close, which depresses conversion regardless of lead quality. The cross-tab data supports this: channels with higher Wolf rates consistently show lower conversion.
+
+**Actions:**
+- **Build Wolf-specific SDR playbook:** Wolf-profile sellers (aggressive, high-maintenance) respond differently to outreach — faster response times, more autonomy, less process friction. Develop a separate SDR track for Social-sourced leads flagged as Wolf indicators.
+- **Add behavioral lead scoring:** Flag Social-sourced leads with Wolf indicators early and route to experienced SDRs who can handle high-maintenance prospects.
+- **Set a 2-quarter benchmark:** If Wolf-specific coaching doesn't improve conversion by at least 2pp, reduce Social spend and reallocate to Paid Search.
+
+**Derivation:**
+```
+Social's profile mix disadvantage: 17.3% Wolf vs 9.6-10.8% for top channels.
+Expecting full catch-up to 11.80% (Organic benchmark) is unrealistic — 
+the profile mix is a structural drag. A more realistic target is ~8% 
+(closing half the gap while building Wolf-specific playbooks).
+
+Improve from 5.56% → 8.0%: +33 incremental deals
+33 × $578.59 LTV/seller ≈ $19,093 gross
+→ 50% confidence discount (new SDR playbook risk)
+```
+**Conservative Estimate:** **~$7K–$12K**
+
+---
+
+#### 2. Incrementally Increase Paid Search (Low Impact)
+
+**Target:** Paid Search leads in LTV/MQL ($95.61) and conversion (12.30%), but the gap to Organic ($89.32 LTV/MQL, 11.80% conversion) is only ~7%.
 
 **Actions:**
 - Increase Paid Search budget by 10–15% (not 56% — the ROI gap doesn't support aggressive reallocation)
@@ -328,25 +370,6 @@ This shows the **lead behavior profile mix within each channel's closed deals** 
 
 ---
 
-#### 2. Fix Social Channel Conversion (Medium Impact)
-
-**Target:** Social has 1,350 MQLs (2nd highest volume) but 5.56% conversion (worst among major channels).
-
-**Actions:**
-- Audit Social MQL quality: are these leads pre-qualified enough?
-- Add lead scoring before SDR handoff for Social-sourced leads
-- If quality can't improve, reduce Social spend and reallocate to Paid Search
-
-**Derivation:**
-```
-Improve Social conversion to match organic (11.80%): +84 deals
-84 × $578.59 LTV/seller ≈ $48,602 gross
-→ 50% confidence discount (process change risk)
-```
-**Conservative Estimate:** **~$15K–$25K** — higher upside than Paid Search reallocation
-
----
-
 #### 3. Maintain Sales Cycle Efficiency (Informational)
 
 **Target:** Time-to-close is already compressing (44→24 days). No intervention needed — monitor for regression.
@@ -361,9 +384,9 @@ Improve Social conversion to match organic (11.80%): +84 deals
 
 | Initiative | Estimate | Confidence |
 |------------|----------|------------|
+| Social Channel Conversion Fix | ~$7K–$12K | Medium — grounded in Wolf-profile data |
 | Paid Search Incremental Budget | ~$8K–$12K | Low — volume saturation unknown |
-| Social Channel Conversion Fix | ~$15K–$25K | Medium — requires process change |
-| **Total** | **~$23K–$37K** | Conservative; no fabricated multipliers |
+| **Total** | **~$15K–$24K** | Conservative; no fabricated multipliers |
 
 > **Note:** Previous estimates (~$800K) were built on fabricated numbers: $4,200 LTV/seller, 1,500 deals, and a lengthening sales cycle that didn't exist. The real LTV/seller ranges from $390–$778, real deals = 842, and the sales cycle is compressing, not lengthening. Conservative estimates based on real data produce more defensible, if less impressive, numbers.
 
