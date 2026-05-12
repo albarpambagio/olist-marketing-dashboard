@@ -33,13 +33,18 @@ kaggle datasets download -d olistbr/brazilian-ecommerce -p ./data --unzip
 kaggle datasets download -d olistbr/marketing-funnel-olist -p ./data --unzip
 ```
 
-### Database Setup (run in each project folder)
+### Marketing Database Setup (run in project root)
 ```bash
-cd olist-sales-dashboard
-python sql/load_data_v2.py        # Load CSV → PostgreSQL raw tables
-python sql/phase3_starschema.py   # Create star schema views
-python sql/phase4_kpis.py         # Generate KPI views
-python sql/phase6_advanced.py     # RFM segmentation, cohort analysis
+# 1. Load marketing funnel data
+python sql/load_marketing_data.py
+# 2. Load e-commerce base tables (if not already loaded)
+python sql/load_data_v2.py
+# 3. Create combined star schema
+python sql/phase3_starschema.py
+# 4. Create KPI views
+python sql/phase4_kpis.py
+# 5. Create funnel analysis + cross-tab views
+python sql/phase5_funnel.py
 ```
 
 ## Development Workflow
@@ -182,7 +187,7 @@ cat logs/phase2_cleaning_eda.log.md
 |---------|-------------|-----------|
 | Sales | Revenue ($13.17M) | Repeat Rate (3%), AOV ($137) |
 | Ops | On-Time Rate (92%) | Delivery Time (12 days), Freight % |
-| Marketing | Conversion (18.75%) | LTV ($4,200/channel) |
+| Marketing | Conversion (10.5%) | LTV ($95.61/MQL) |
 
 ### Monorepo Structure
 The three projects are siblings. To work on a specific project:

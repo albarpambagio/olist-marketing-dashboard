@@ -451,11 +451,11 @@ ORDER BY 1, 5 DESC;
 ## Business Recommendations (Marketing Funnel) — Corrected
 
 ### 1. Fix Social Channel Conversion
-- **Target**: Social has 1,350 MQLs (16.9%) at 5.56% conversion — worst among major channels
-- **Action**: Audit lead quality, add scoring before SDR handoff
-- **Derivation**: Match Organic benchmark (11.80%) = +84 incremental deals × $578.59 LTV = $48K gross → 50% discount
-- **Conservative Estimate**: ~$15K–$25K
-- **Caveat**: Social lead quality may be fundamentally different from Organic
+- **Target**: Social has 1,350 MQLs (16.9%) at 5.56% conversion — worst among major channels; 17.3% Wolf-profile deal mix (structural drag)
+- **Action**: Build Wolf-specific SDR playbook; add behavioral lead scoring
+- **Derivation**: Target 8.0% (not 11.80% — Wolf mix makes full catch-up unrealistic). +33 deals × $578.59 LTV = $19K gross → 50% discount
+- **Conservative Estimate**: ~$7K–$12K
+- **Caveat**: Wolf-profile mix is structural, not a process fix; full catch-up to Organic benchmark unrealistic
 
 ### 2. Incrementally Increase Paid Search
 - **Target**: Increase Paid Search budget 10–15%
@@ -471,9 +471,9 @@ ORDER BY 1, 5 DESC;
 ### Combined 1-Year Impact:
 | Initiative | Estimate | Confidence |
 |------------|----------|------------|
-| Social Conversion Fix | ~$15K–$25K | Medium |
-| Paid Search Incremental | ~$8K–$12K | Low |
-| **Total Conservative** | **~$23K–$37K** | |
+| Social Conversion Fix | ~$7K–$12K | Medium — grounded in Wolf-profile data |
+| Paid Search Incremental | ~$8K–$12K | Low — volume saturation unknown |
+| **Total Conservative** | **~$15K–$24K** | |
 
 > **Note:** Corrected from fabricated ~$800K estimate. Real LTV/MQL ($95.61 vs fabricated $4,200) means real impact is proportionally smaller. Every number is traceable to its SQL view.
 
@@ -498,7 +498,7 @@ ORDER BY 1, 5 DESC;
 | `kpi_ltv_by_channel` | LTV per MQL + per seller (LEFT JOIN fix applied) | `phase5_funnel.py:71` |
 | `kpi_lead_behavior` | Conversion by Cat/Eagle/Wolf/Shark | `phase5_funnel.py:90` |
 | `kpi_time_to_close` | Avg days by month | `phase5_funnel.py:121` |
-| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab (NEW) | `phase5_funnel.py:137` |
+| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab | `phase5_funnel.py:137` |
 
 ### SQL Used for Data Quality Fixes:
 ```sql

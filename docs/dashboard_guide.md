@@ -10,9 +10,9 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 **KPI Cards (top row):**
 - MQL Volume (8,000 total)
-- Conversion Rate (18.75% overall)
-- Deals Won (~1,500)
-- Avg Time-to-Close (45 days)
+- Conversion Rate (10.5% overall)
+- Deals Won (842)
+- Avg Time-to-Close (24–44 days)
 
 **Visuals:**
 - MQL volume trend (monthly, with conversion % annotation)
@@ -28,7 +28,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 
 **Visuals:**
 - Conversion rate by origin (horizontal bar, sorted desc)
-- LTV by channel (bar chart — $2.4k–$4.2k range)
+- LTV by channel (bar chart — $17–$96/MQL range)
 - Conversion rate vs. LTV scatter (bubble size = MQL volume)
 - Channel volume mix (donut chart)
 
@@ -39,13 +39,13 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 ### Page3: Lead Quality
 
 **Visuals:**
-- Lead behavior profiles (Cat/Eagle/Wolf/Shark) — conversion rate (bar chart)
+- Lead behavior profiles (Cat/Eagle/Wolf/Shark) — distribution within closed deals (bar chart) — note: profiles are deal-stage only, not MQL predictors
 - Time-to-close by lead behavior (box plot or bar chart)
 - Lead behavior distribution (donut)
 - Conversion rate trend by behavior (line chart over time)
-- **NEW:** Channel × Lead Behavior Cross-Tab (heatmap matrix — rows = channel, columns = behavior, fill = conversion rate %)
+- Channel × Lead Behavior Cross-Tab (heatmap matrix — rows = channel, columns = behavior, fill = profile distribution %)
 
-**Business narrative:** "Should the Head of Sales Ops change SDR prioritization rules — and does the answer change when we cross-tab with channel?"
+**Business narrative:** "Which channels produce which seller profiles — and does Social's Wolf-heavy mix (17.3%) explain its conversion gap?"
 
 ---
 
@@ -57,7 +57,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 - Cohort retention of sellers (heat table — month index vs. acquisition month)
 - Seller revenue by channel (scatter: revenue vs. time-since-acquisition)
 
-**Business narrative:** "What is the long-term value of each channel?"
+**Business narrative:** "Which channels deliver the highest LTV/MQL after correcting the denominator bug — and does the gap justify budget shifts?"
 
 ---
 
@@ -126,7 +126,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 | `kpi_ltv_by_channel` | LTV per MQL, per seller (LEFT JOIN fix applied) | `phase5_funnel.py:71` |
 | `kpi_lead_behavior` | Conversion by Cat/Eagle/Wolf/Shark | `phase5_funnel.py:90` |
 | `kpi_time_to_close` | Avg days by month | `phase5_funnel.py:121` |
-| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab (NEW) | `phase5_funnel.py:137` |
+| `kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab | `phase5_funnel.py:137` |
 
 ---
 
