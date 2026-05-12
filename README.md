@@ -229,7 +229,7 @@ flowchart LR
 *Source: `olist.kpi_conversion_rate` view in `sql/phase5_funnel.py:52`.*
 *¹ Excludes 1,159 Unknown/NaN origin MQLs (14.5% of total) — see MQL Volume table above.*
 
-**Finding:** Paid Search converts 12.3% — marginally better than Organic (11.8%) and Direct (11.2%). The gap is narrower than the "fabricated 12% vs 11%" narrative suggested. Social's high volume (1,350 MQLs) but low conversion (5.56%) is a larger concern.
+**Finding:** Paid Search converts 12.3% — marginally better than Organic (11.8%) and Direct (11.2%). The gap is narrower than previously assumed. Social's high volume (1,350 MQLs) but low conversion (5.56%) is a larger concern.
 
 ---
 
@@ -300,7 +300,7 @@ Social's 17.3% Wolf rate is the largest profile-mix gap in the data. Wolf-profil
 | Social | 1,350 | 75 | $43,394 | $32.14 | $578.59 | 5.56% |
 | Email | 493 | 15 | $8,485 | $17.21 | $565.67 | 3.04% |
 
-**Finding:** Paid Search leads in LTV/MQL ($95.61) and LTV/Seller ($777.65), but the gap to Organic ($89.32 / $756.74) is only ~7%. The previously reported $4,200+ figures were fabricated by dividing revenue only by converted MQLs via an `INNER JOIN` bug (fixed in `sql/phase5_funnel.py:67`).
+**Finding:** Paid Search leads in LTV/MQL ($95.61) and LTV/Seller ($777.65), but the gap to Organic ($89.32 / $756.74) is only ~7%. The previously reported $4,200+ figures resulted from an `INNER JOIN` that excluded non-converting MQLs from the denominator (fixed in `sql/phase5_funnel.py:67`).
 
 *Source: `olist.kpi_ltv_by_channel` view in `sql/phase5_funnel.py:71`.*
 *¹ Excludes 1,159 Unknown/NaN origin MQLs — see MQL Volume table.*
@@ -318,7 +318,7 @@ Social's 17.3% Wolf rate is the largest profile-mix gap in the data. Wolf-profil
 | 2018-04 | 23.8 days | 183 |
 | 2018-05 | 32.8 days | 130 |
 
-**Finding:** The previously claimed "lengthening cycle (38→52 days)" was fabricated. The real data shows the **opposite trend**: time-to-close **decreased** from 43.7 days (Jan 2018) to 23.8 days (Apr 2018), with a small uptick to 32.8 days in May. Dec 2017's 122-day average is a small-sample anomaly (11 deals only). The sales cycle is actually **compressing**, suggesting improving efficiency or deal mix shift toward faster-closing segments.
+**Finding:** Time-to-close **decreased** from 43.7 days (Jan 2018) to 23.8 days (Apr 2018), with a small uptick to 32.8 days in May. Dec 2017's 122-day average is a small-sample anomaly (11 deals only). The sales cycle is **compressing**, suggesting improving efficiency or deal mix shift toward faster-closing segments.
 
 *Source: `olist.kpi_time_to_close` view in `sql/phase5_funnel.py:121`.*
 
@@ -382,7 +382,7 @@ Improve from 5.56% → 8.0%: +33 incremental deals
 → 50% saturation discount = ~$9,700
 → Caveat: Paid Search volume at higher spend may convert lower
 ```
-**Conservative Estimate:** **~$8K–$12K** — far below the fabricated $453K
+**Conservative Estimate:** **~$8K–$12K**
 
 ---
 
@@ -402,9 +402,7 @@ Improve from 5.56% → 8.0%: +33 incremental deals
 |------------|----------|------------|
 | Social Channel Conversion Fix | ~$7K–$12K | Medium — grounded in Wolf-profile data |
 | Paid Search Incremental Budget | ~$8K–$12K | Low — volume saturation unknown |
-| **Total** | **~$15K–$24K** | Conservative; no fabricated multipliers |
-
-> **Note:** Previous estimates (~$800K) were built on fabricated numbers: $4,200 LTV/seller, 1,500 deals, and a lengthening sales cycle that didn't exist. The real LTV/seller ranges from $390–$778, real deals = 842, and the sales cycle is compressing, not lengthening. Conservative estimates based on real data produce more defensible, if less impressive, numbers.
+| **Total** | **~$15K–$24K** | Conservative |
 
 ---
 

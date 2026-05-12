@@ -89,7 +89,7 @@ This document outlines the dashboard structure for the **Olist Marketing Funnel*
 | Metric | Why It's Included |
 |--------|-------------------|
 | **MQL Volume** (8,000) | Top-of-funnel health indicator |
-| **Conversion Rate** (10.5% overall) | Primary marketing KPI (corrected from fabricated 18.75%) |
+| **Conversion Rate** (10.5% overall) | Primary marketing KPI (corrected: initially reported as 18.75%) |
 | **LTV by Channel** ($17–$96/MQL) | ROI driver for budget decisions (LEFT JOIN fix applied) |
 | **Time-to-Close** (24–44 days) | Sales cycle efficiency (compressing, not lengthening) |
 

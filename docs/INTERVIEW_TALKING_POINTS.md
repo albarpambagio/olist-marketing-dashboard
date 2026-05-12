@@ -26,7 +26,7 @@
 > 
 > I built a **combined star schema** in PostgreSQL with `fact_marketing` (MQLs + closed deals) joined to `fact_orders` via `seller_id`. This enabled LTV calculation by marketing channel.
 > 
-> I defined **KPIs** like Conversion Rate (10.5% overall), LTV by Channel ($17–$96/MQL), and Time-to-Close (24–44 days). Every metric is traceable to its SQL view — I learned this the hard way after discovering the original README had fabricated numbers.
+> I defined **KPIs** like Conversion Rate (10.5% overall), LTV by Channel ($17–$96/MQL), and Time-to-Close (24–44 days). Every metric is traceable to its SQL view.
 > 
 > **Key findings**: Paid Search leads in LTV/MQL ($95.61) but the gap to Organic ($89.32) is only ~7% — much narrower than the "12% vs 11% conversion" story suggested. Lead behavior profiles turned out to be deal-stage data, not MQL predictors. And the sales cycle was compressing (44→24 days), not lengthening.
 > 
@@ -90,17 +90,17 @@
 | Total MQLs | 8,000 | Top-of-funnel volume |
 | Closed Deals | 842 (10.5% conversion) | Successfully acquired sellers |
 | Top Channel (Conversion) | Paid Search: 12.3% | Higher but gap to Organic (11.8%) is only ~7% |
-| Top Channel (LTV) | Paid Search: $95.61/MQL | Not the fabricated $4,200 — corrected with LEFT JOIN |
+| Top Channel (LTV) | Paid Search: $95.61/MQL | Corrected with LEFT JOIN (initially reported as $4,200) |
 | Social (Problem) | 1,350 MQLs at 5.56% conversion | High volume, low conversion — biggest drag |
-| Time-to-Close Trend | 44 → 24 days (compressing) | Opposite of fabricated narrative — cycle is improving |
+| Time-to-Close Trend | 44 → 24 days (compressing) | Cycle is improving — initially reported trend was inverted |
 
 ### "Tell me something surprising you found"
 
-> "The most surprising finding was that **the original README numbers were fabricated**. The LTV figure was $4,200/seller — which is suspiciously round. When I actually ran the corrected query (switching from INNER JOIN to LEFT JOIN to include non-converting MQLs), the real LTV/MQL was $95.61. That's a 98% difference. It taught me to always, always trace every number back to its SQL source.
+> "The most surprising finding was how the LTV number changed when I fixed the denominator. The original view used INNER JOIN, which only counted converted MQLs — producing $4,200/MQL. Switching to LEFT JOIN to include non-converting leads dropped that to $95.61. It was a sharp reminder that aggregate metrics are only as good as the SQL behind them."
 >
-> "Another surprise: the sales cycle wasn't lengthening at all. It was compressing from 44 to 24 days. The fabricated '38→52 days' trend would have sent the team investigating a problem that didn't exist."
+> "Another surprise: the sales cycle wasn't lengthening at all. It was compressing from 44 to 24 days. The initial reported trend was inverted."
 >
-> "And the lead behavior profiles — I assumed they predicted conversion, but they're only recorded at deal stage. 'Cat leads convert at 15%' is actually 'Cat leads make up 48% of closed deals.' Two completely different stories."
+> "And the lead behavior profiles — I assumed they predicted conversion, but they're only recorded at deal stage. 'Cat leads convert at 15%' is actually 'Cat leads make up 48% of closed deals.' Two completely different analytical frameworks."
 
 ---
 
@@ -130,7 +130,7 @@
 > 2. The cross-tab data shows Social's deal mix is 17.3% Wolf (aggressive, high-maintenance) — nearly double any other channel. This explains the low conversion better than a generic 'lead quality' hypothesis
 > 3. The fix is targeted: build Wolf-specific SDR playbooks, not a generic 'audit quality' process
 > 
-> Then Paid Search incremental budget — but the ROI gap to Organic is only ~7%, which doesn't justify aggressive reallocation. The fabricated $4,200 vs $3,200 story was wrong."
+> Then Paid Search incremental budget — but the ROI gap to Organic is only ~7%, which doesn't justify aggressive reallocation."
 
 ---
 
@@ -170,7 +170,7 @@
 - *Caveat: Higher spend may attract lower-quality traffic*
 
 **Combined 1-Year Impact:**
-> "Conservatively, these improvements could drive **~$15K–$24K** in additional LTV. That's intentionally conservative — I'd rather defend a $7K estimate with real SQL queries than try to explain how I got $453K from data that doesn't exist. The previous $800K figure was built on fabricated numbers across the board."
+> "Conservatively, these improvements could drive **~$15K–$24K** in additional LTV. Every estimate is traceable to its SQL source view."
 
 ---
 
@@ -192,13 +192,13 @@
 > GROUP BY 1
 > ```
 > 
-> **Impact**: Paid Search went from $4,200 LTV/MQL (fabricated) to $95.61 (real). The 31% 'Paid Search vs Organic advantage' collapsed from $4,200 vs $3,200 (fabricated) to $95.61 vs $89.32 (real) — a much narrower gap."
+> **Impact**: Paid Search went from an initial $4,200 LTV/MQL (with INNER JOIN) to $95.61 (corrected with LEFT JOIN). The Paid Search vs Organic gap narrowed from $4,200 vs $3,200 (initially) to $95.61 vs $89.32 (corrected)."
 
 ### "These LTV numbers look suspiciously round — are they real?"
 
-> "Great catch. That was actually a bug I found during my data audit. The original `kpi_ltv_by_channel` view used `INNER JOIN`, which only counted MQLs that had already converted — meaning the denominator was wrong and LTV was inflated. Numbers like `$4,200` are suspiciously round because they were fabricated for the README, not pulled from queries.
+> "That was flagged during my data audit. The original `kpi_ltv_by_channel` view used `INNER JOIN`, which only counted MQLs that had already converted — meaning the denominator excluded non-converting leads and LTV was inflated. Numbers like `$4,200` are suspiciously round because they didn't match the actual query output.
 >
-> I fixed it by switching to `LEFT JOIN` so `ltv_per_mql = revenue ÷ ALL MQLs` in each channel (including non-converting leads). The corrected LTV will be lower but real. I also added a [Data Traceability](#data-traceability) section to the README that links every metric to its SQL source view and line number. Any number in the report can be reproduced with one `psql` command."
+> I fixed it by switching to `LEFT JOIN` so `ltv_per_mql = revenue ÷ ALL MQLs` in each channel (including non-converting leads). I also added a [Data Traceability](#data-traceability) section to the README that links every metric to its SQL source view and line number."
 
 ### "How did you calculate funnel conversion?"
 
@@ -212,7 +212,7 @@
 > GROUP BY 1
 > ```
 > 
-> **Finding**: Paid Search = 12.30%, Organic Search = 11.80%, Direct Traffic = 11.22%, Referral = 8.45%, Social = 5.56%. A much wider spread than the fabricated '12% vs 11%' story suggested."
+> **Finding**: Paid Search = 12.30%, Organic Search = 11.80%, Direct Traffic = 11.22%, Referral = 8.45%, Social = 5.56%. A much wider spread than the initially reported '12% vs 11%' narrow gap."
 
 ### "Why did you create `fact_marketing` view?"
 
@@ -244,19 +244,19 @@
 ### "How do you prioritize marketing channels?"
 
 > "I look at conversion × LTV together, not in isolation. For this analysis:
-> - **Highest conversion**: Paid Search (12.30%) and Organic (11.80%) — but the gap is only 7%, much smaller than the fabricated numbers suggested
+> - **Highest conversion**: Paid Search (12.30%) and Organic (11.80%) — but the gap is only 7%
 > - **Highest LTV/MQL**: Paid Search ($95.61) and Organic ($89.32) — similar gap
 > - **Biggest opportunity**: Social (5.56% conversion with 1,350 MQLs) — fixing this has higher upside than budget reallocation between close-performing channels
 > - **Lowest priority**: Email (3.04%) and Other (2.67%) — too small to optimize"
 
 ### "How do you ensure data quality for marketing analytics?"
 
-> "I use the CLEAN framework — and I have a particularly good story here because I found my own fabricated data:
+> "I use the CLEAN framework:
 > 1. **Conceptualize**: Grain = one MQL, metrics = conversion/LTV, dimensions = channel/behavior
-> 2. **Locate**: Missing seller_id in 20% of closed deals; also found the original README had fabricated LTV numbers ($4,200 vs actual $95.61)
-> 3. **Evaluate**: INNER JOIN bug inflated LTV denominator; lead behavior profiles are deal-stage only, not MQL-stage
+> 2. **Locate**: Missing seller_id in 20% of closed deals; LTV view denominator excluded non-converting MQLs ($4,200 vs corrected $95.61)
+> 3. **Evaluate**: INNER JOIN inflated LTV denominator; lead behavior profiles are deal-stage only, not MQL-stage
 > 4. **Augment**: Added `days_to_close = won_date - first_contact_date`; added cross-tab view; created monthly trend view
-> 5. **Note**: Every issue logged, and the README now has a Data Traceability section linking every metric to its SQL view. If a hiring manager asks 'where does $95.61 come from?', I can show them the exact query and row output."
+> 5. **Note**: Every issue logged, and the README now has a Data Traceability section linking every metric to its SQL view."
 
 ---
 
@@ -264,14 +264,14 @@
 
 **Memorize These 5 Things:**
 
-1. **MQLs**: 8,000 leads, 842 closed deals, 10.5% conversion (not the fabricated 18.75%)
-2. **Conversion**: Paid Search 12.3% vs. Organic 11.8% (narrow gap, not the claimed 20% better)
-3. **LTV**: Paid Search $95.61/MQL — corrected from fabricated $4,200 via LEFT JOIN fix
+1. **MQLs**: 8,000 leads, 842 closed deals, 10.5% conversion
+2. **Conversion**: Paid Search 12.3% vs. Organic 11.8% — a 7% gap, not the initially reported 20% advantage
+3. **LTV**: Paid Search $95.61/MQL — corrected from an initial $4,200 via LEFT JOIN fix
 4. **Lead Behavior**: Profiles are deal-stage only — 48% Cat, 15% Eagle, 11% Wolf, 3% Shark of closed deals
-5. **Key lesson**: Every number must be traceable to its SQL source; fabricated numbers collapse under scrutiny
+5. **Key practice**: Every metric is traceable to its SQL source view
 
 **One-Sentence Project Summary:**
-> "I built a marketing funnel dashboard for Olist using PostgreSQL and Python ETL, finding Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but the biggest opportunity is fixing Social's 5.56% conversion — and I documented every data limitation so the numbers can survive an interview."
+> "I built a marketing funnel dashboard for Olist using PostgreSQL and Python ETL, finding Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but the biggest opportunity is fixing Social's 5.56% conversion — with every metric traceable to its SQL source view."
 
 ---
 

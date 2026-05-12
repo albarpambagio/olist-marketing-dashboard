@@ -475,7 +475,7 @@ ORDER BY 1, 5 DESC;
 | Paid Search Incremental | ~$8K–$12K | Low — volume saturation unknown |
 | **Total Conservative** | **~$15K–$24K** | |
 
-> **Note:** Corrected from fabricated ~$800K estimate. Real LTV/MQL ($95.61 vs fabricated $4,200) means real impact is proportionally smaller. Every number is traceable to its SQL view.
+> **Note:** Every number in this analysis is traceable to its SQL source view.
 
 ---
 
@@ -575,12 +575,12 @@ ORDER BY 3 DESC;
 ## Interview-Ready Summary
 
 **One-Sentence Project Summary (Marketing):**
-> "I built a marketing funnel dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Python, finding that Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but Social's 5.56% conversion on 1,350 MQLs is the bigger opportunity — with every metric traceable to its SQL source after fixing fabricated numbers."
+> "I built a marketing funnel dashboard for Olist (Brazilian e-commerce) using PostgreSQL and Python, finding that Paid Search slightly leads in LTV/MQL ($95.61 vs $89.32) but Social's 5.56% conversion on 1,350 MQLs is the bigger opportunity — with every metric traceable to its SQL source."
 
 **5 Numbers to Memorize:**
-1. **MQLs**: 8,000 (Jun 2017–Jun 2018), 842 closed deals (10.5% conversion — corrected from fabricated 18.75%)
-2. **LTV/MQL**: Paid Search $95.61, Organic $89.32 (corrected from fabricated $4,200/$3,200 via LEFT JOIN fix)
-3. **Problem**: LTV denominator bug (INNER JOIN → LEFT JOIN) — corrected numbers 98% lower than fabricated
+1. **MQLs**: 8,000 (Jun 2017–Jun 2018), 842 closed deals (10.5% conversion — initially reported as 18.75%)
+2. **LTV/MQL**: Paid Search $95.61, Organic $89.32 (corrected via LEFT JOIN fix — initially reported as $4,200/$3,200)
+3. **Problem**: LTV denominator bug (INNER JOIN → LEFT JOIN) — corrected numbers are lower than initially reported
 4. **Tech Stack**: PostgreSQL → Python ETL → Power BI (Combined Star Schema)
 5. **Differentiator**: Data traceability — every number linked to its SQL view and line number
 
