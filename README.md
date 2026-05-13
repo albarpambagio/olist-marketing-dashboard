@@ -98,7 +98,6 @@ erDiagram
 
     dim_channel {
         string origin PK
-        string landing_page_id
     }
 
     fact_marketing {

@@ -55,7 +55,6 @@ def create_marketing_schema():
         SELECT DISTINCT
             origin AS channel_id,
             origin AS channel_name,
-            landing_page_id,
             COUNT(*) OVER (PARTITION BY origin) AS mql_count
         FROM olist.marketing_qualified_leads
         ORDER BY 2;

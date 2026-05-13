@@ -29,7 +29,6 @@ erDiagram
     dim_channel {
         string channel_id PK
         string channel_name
-        string landing_page_id
         int mql_count
     }
 
