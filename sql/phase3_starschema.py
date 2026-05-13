@@ -101,16 +101,29 @@ def create_marketing_schema():
             dm.origin,
             dm.lead_behaviour_profile,
             dm.business_segment,
-            fo.order_date,
-            fo.revenue,
-            fo.freight_value,
-            fo.review_score,
-            fo.is_late,
-            fo.is_repeat_customer,
+            fo.total_orders,
+            fo.first_order_date,
+            fo.total_revenue,
+            fo.total_freight,
+            fo.avg_review_score,
+            fo.has_late_delivery,
+            fo.has_repeat_customer,
             (dm.won_date::date - dm.first_contact_date::date) AS days_to_close
         FROM olist.dim_marketing dm
         LEFT JOIN olist.sellers s ON dm.seller_id = s.seller_id
-        LEFT JOIN olist.fact_orders fo ON s.seller_id = fo.seller_id
+        LEFT JOIN (
+            SELECT
+                seller_id,
+                COUNT(DISTINCT order_id) AS total_orders,
+                MIN(order_date) AS first_order_date,
+                SUM(revenue) AS total_revenue,
+                SUM(freight_value) AS total_freight,
+                ROUND(AVG(review_score), 2) AS avg_review_score,
+                MAX(is_late) AS has_late_delivery,
+                MAX(is_repeat_customer) AS has_repeat_customer
+            FROM olist.fact_orders
+            GROUP BY seller_id
+        ) fo ON s.seller_id = fo.seller_id
         ORDER BY dm.first_contact_date;
     """)
     conn.commit()

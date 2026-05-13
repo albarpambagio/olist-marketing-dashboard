@@ -105,6 +105,9 @@ erDiagram
         string seller_id FK
         date won_date
         date lead_date
+        float total_revenue
+        int total_orders
+        float avg_review_score
     }
 
     fact_orders {

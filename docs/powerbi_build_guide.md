@@ -48,9 +48,11 @@ erDiagram
         date won_date
         string origin
         string lead_behaviour_profile
-        float revenue
-        float freight_value
-        int review_score
+        float total_revenue
+        float total_freight
+        float avg_review_score
+        int total_orders
+        int has_late_delivery
         int days_to_close
     }
 
@@ -79,7 +81,7 @@ erDiagram
 
 ### LTV Calculation Note
 
-The `fact_marketing` view uses `LEFT JOIN` so all MQLs (including non-converting) are preserved. LTV/MQL = `SUM(revenue) / COUNT(DISTINCT mql_id)`. The `fact_orders` join via `seller_id` means only sellers with orders contribute revenue — MQLs without deals or sellers without orders contribute $0.
+The `fact_marketing` view uses `LEFT JOIN` so all MQLs (including non-converting) are preserved. LTV/MQL = `SUM(total_revenue) / COUNT(DISTINCT mql_id)`. The `fact_orders` join via `seller_id` means only sellers with orders contribute revenue — MQLs without deals or sellers without orders contribute $0.
 
 ---
 
