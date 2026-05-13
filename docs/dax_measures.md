@@ -2,9 +2,20 @@
 
 ## Measures Table
 
-Create: **Modeling → New Table** → `Measures = ROW("Version", 1)` (hide from report view).
+In Power BI Desktop: **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})`
+Then delete the `"x"` column (keep the empty table).
 
-Then **Modeling → New Measure** for each below, all stored in the `Measures` table.
+### Bulk Load (Tabular Editor)
+
+Open **External Tools → Tabular Editor** → Advanced Scripting → paste `docs/bulk_measures.cs` → **F5**.
+All 13 measures created in one shot with formatting and display folders.
+
+### Test Before Loading
+
+Use **Modeling → New Query** (DAX Query view) to validate results before persisting:
+1. Open `docs/dax_query_test.dax` → paste sections into DAX Query view
+2. Press **F5** to run each `EVALUATE` block and inspect results
+3. Once validated, run `bulk_measures.cs` in Tabular Editor to persist
 
 ---
 
