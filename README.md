@@ -82,7 +82,8 @@ erDiagram
     dim_date ||--o{ fact_marketing : "date_key FK"
     dim_marketing ||--o{ fact_marketing : "mql_id FK"
     dim_channel ||--o{ fact_marketing : "origin FK"
-    fact_marketing ||--o{ fact_orders : "seller_id FK"
+    fact_marketing }o--|| dim_seller : "seller_id FK"
+    dim_seller ||--o{ fact_orders : "seller_id FK"
 
     dim_date {
         int date_key PK
@@ -105,9 +106,15 @@ erDiagram
         string seller_id FK
         date won_date
         date lead_date
-        float total_revenue
-        int total_orders
-        float avg_review_score
+        float revenue
+        int review_score
+        int is_late
+    }
+
+    dim_seller {
+        string seller_id PK
+        string seller_city
+        string seller_state
     }
 
     fact_orders {

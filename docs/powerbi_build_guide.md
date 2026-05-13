@@ -13,7 +13,8 @@ erDiagram
     dim_marketing ||--o{ fact_marketing : "mql_id"
     dim_channel ||--o{ fact_marketing : "origin"
     dim_date ||--o{ fact_marketing : "lead_date"
-    fact_marketing ||--o{ fact_orders : "seller_id"
+    fact_marketing }o--|| dim_seller : "seller_id"
+    dim_seller ||--o{ fact_orders : "seller_id"
 
     dim_marketing {
         string mql_id PK
@@ -48,12 +49,18 @@ erDiagram
         date won_date
         string origin
         string lead_behaviour_profile
-        float total_revenue
-        float total_freight
-        float avg_review_score
-        int total_orders
-        int has_late_delivery
+        float revenue
+        float freight_value
+        int review_score
+        int is_late
+        int is_repeat_customer
         int days_to_close
+    }
+
+    dim_seller {
+        string seller_id PK
+        string seller_city
+        string seller_state
     }
 
     fact_orders {
@@ -75,13 +82,14 @@ erDiagram
 | `dim_marketing` | `fact_marketing` | 1:* | `mql_id` |
 | `dim_channel` | `fact_marketing` | 1:* | `origin` |
 | `dim_date` | `fact_marketing` | 1:* | `lead_date` → `date_key` |
-| `fact_marketing` | `fact_orders` | 1:* | `seller_id` |
+| `fact_marketing` | `dim_seller` | *:1 | `seller_id` |
+| `dim_seller` | `fact_orders` | 1:* | `seller_id` |
 
-**Filter direction:** Single (cross-filter) for all relationships. `dim_channel` filters `fact_marketing` which filters `fact_orders`.
+**Filter direction:** Single (cross-filter) for all relationships. `dim_channel` filters `fact_marketing` → `dim_seller` → `fact_orders`.
 
 ### LTV Calculation Note
 
-The `fact_marketing` view uses `LEFT JOIN` so all MQLs (including non-converting) are preserved. LTV/MQL = `SUM(total_revenue) / COUNT(DISTINCT mql_id)`. The `fact_orders` join via `seller_id` means only sellers with orders contribute revenue — MQLs without deals or sellers without orders contribute $0.
+The `fact_marketing` view uses `LEFT JOIN` so all MQLs (including non-converting) are preserved. LTV/MQL = `SUM(revenue) / COUNT(DISTINCT mql_id)`. The `fact_orders` join via `dim_seller` bridge means only sellers with orders contribute revenue — MQLs without deals or sellers without orders contribute $0.
 
 ---
 

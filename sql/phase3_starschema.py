@@ -25,6 +25,7 @@ def create_marketing_schema():
     cur.execute("DROP VIEW IF EXISTS olist.fact_marketing CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.dim_marketing CASCADE")
     cur.execute("DROP VIEW IF EXISTS olist.dim_channel CASCADE")
+    cur.execute("DROP VIEW IF EXISTS olist.dim_seller CASCADE")
     conn.commit()
     print("   Done")
     
@@ -101,33 +102,34 @@ def create_marketing_schema():
             dm.origin,
             dm.lead_behaviour_profile,
             dm.business_segment,
-            fo.total_orders,
-            fo.first_order_date,
-            fo.total_revenue,
-            fo.total_freight,
-            fo.avg_review_score,
-            fo.has_late_delivery,
-            fo.has_repeat_customer,
+            fo.order_date,
+            fo.revenue,
+            fo.freight_value,
+            fo.review_score,
+            fo.is_late,
+            fo.is_repeat_customer,
             (dm.won_date::date - dm.first_contact_date::date) AS days_to_close
         FROM olist.dim_marketing dm
-        LEFT JOIN olist.sellers s ON dm.seller_id = s.seller_id
-        LEFT JOIN (
-            SELECT
-                seller_id,
-                COUNT(DISTINCT order_id) AS total_orders,
-                MIN(order_date) AS first_order_date,
-                SUM(revenue) AS total_revenue,
-                SUM(freight_value) AS total_freight,
-                ROUND(AVG(review_score), 2) AS avg_review_score,
-                MAX(is_late) AS has_late_delivery,
-                MAX(is_repeat_customer) AS has_repeat_customer
-            FROM olist.fact_orders
-            GROUP BY seller_id
-        ) fo ON s.seller_id = fo.seller_id
+        LEFT JOIN olist.fact_orders fo ON dm.seller_id = fo.seller_id
         ORDER BY dm.first_contact_date;
     """)
     conn.commit()
     print("   fact_marketing created")
+    
+    # Create dim_seller (bridge between fact_marketing and fact_orders)
+    print("\n6. Creating dim_seller...")
+    cur.execute("""
+        CREATE OR REPLACE VIEW olist.dim_seller AS
+        SELECT DISTINCT
+            seller_id,
+            seller_zip_code_prefix,
+            seller_city,
+            seller_state
+        FROM olist.sellers
+        ORDER BY seller_id;
+    """)
+    conn.commit()
+    print("   dim_seller created")
     
     # Verify
     print("\n=== Verification ===")
@@ -135,6 +137,8 @@ def create_marketing_schema():
     print(f"   dim_marketing: {cur.fetchone()[0]:,} rows")
     cur.execute("SELECT COUNT(*) FROM olist.fact_marketing;")
     print(f"   fact_marketing: {cur.fetchone()[0]:,} rows")
+    cur.execute("SELECT COUNT(*) FROM olist.dim_seller;")
+    print(f"   dim_seller: {cur.fetchone()[0]:,} rows")
     cur.execute("SELECT COUNT(DISTINCT origin) FROM olist.dim_marketing;")
     print(f"   Channels: {cur.fetchone()[0]}")
     
