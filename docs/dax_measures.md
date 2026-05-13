@@ -1,21 +1,13 @@
 # DAX Measures — Marketing Funnel Dashboard
 
-## Bulk-Loading Measures
+## Load Measures — TMDL View (Native, No Installation)
 
-You have **two options** — both create identical measures:
-
-| Method | External Tool? | Naming | Speed |
-|--------|:-:|--------|-------|
-| **TMDL View** (native in PBI) | ❌ No | Uses underscores → rename in UI after apply | 1 min |
-| **Tabular Editor** (free ext. tool) | ✅ Install once | Spaces in names, formatting in one shot | 30 sec |
-
-### Method A — TMDL View (Native, No Installation)
-
-1. **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})` → Delete column `"x"`
-2. **Model view** → Click **TMDL icon** in the ribbon
-3. Open `docs/bulk_measures.csl` → **Select All → Copy** → Paste into TMDL editor
-4. Click **Apply** (top-left corner)
-5. Go back to Report view — rename measures: double-click each, replace `_` with ` `
+1. **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})` → Delete the column `"x"` (keep the empty table)
+2. **Model View** → Click the **TMDL icon** in the ribbon
+3. Open `docs/bulk_measures.csl` → **Select All → Copy** → Paste into the TMDL editor
+4. Click **Apply** (top-left corner of TMDL editor)
+5. All 13 measures are created, formatted, and grouped
+6. Go back to **Report view** and rename each measure to add back spaces:
    - `MQL_Count` → `MQL Count`
    - `Deals_Won` → `Deals Won`
    - `Conversion_Rate` → `Conversion Rate`
@@ -26,13 +18,9 @@ You have **two options** — both create identical measures:
    - `Repeat_Customer_Percentage` → `Repeat Customer %`
    - `Avg_Days_to_Close` → `Avg Days to Close`
    - `Unique_Sellers` → `Unique Sellers`
-
-### Method B — Tabular Editor (Recommended for Nice Names)
-
-1. Install [Tabular Editor](https://tabulareditor.com/)
-2. In PBI Desktop: **External Tools → Tabular Editor**
-3. **Advanced Scripting** tab → open `docs/bulk_measures.cs` → **Ctrl+A → F5**
-4. All 13 measures created with spaces in names, formatting, and display folders — done.
+   - `AOV` → `AOV` (no change needed)
+   - `LTV_per_MQL` → `LTV per MQL`
+   - `LTV_per_Seller` → `LTV per Seller`
 
 ---
 
