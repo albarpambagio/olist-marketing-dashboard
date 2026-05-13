@@ -1,21 +1,38 @@
 # DAX Measures — Marketing Funnel Dashboard
 
-## Measures Table
+## Bulk-Loading Measures
 
-In Power BI Desktop: **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})`
-Then delete the `"x"` column (keep the empty table).
+You have **two options** — both create identical measures:
 
-### Bulk Load (Tabular Editor)
+| Method | External Tool? | Naming | Speed |
+|--------|:-:|--------|-------|
+| **TMDL View** (native in PBI) | ❌ No | Uses underscores → rename in UI after apply | 1 min |
+| **Tabular Editor** (free ext. tool) | ✅ Install once | Spaces in names, formatting in one shot | 30 sec |
 
-Open **External Tools → Tabular Editor** → Advanced Scripting → paste `docs/bulk_measures.cs` → **F5**.
-All 13 measures created in one shot with formatting and display folders.
+### Method A — TMDL View (Native, No Installation)
 
-### Test Before Loading
+1. **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})` → Delete column `"x"`
+2. **Model view** → Click **TMDL icon** in the ribbon
+3. Open `docs/bulk_measures.csl` → **Select All → Copy** → Paste into TMDL editor
+4. Click **Apply** (top-left corner)
+5. Go back to Report view — rename measures: double-click each, replace `_` with ` `
+   - `MQL_Count` → `MQL Count`
+   - `Deals_Won` → `Deals Won`
+   - `Conversion_Rate` → `Conversion Rate`
+   - `Total_Revenue` → `Total Revenue`
+   - `Total_Orders` → `Total Orders`
+   - `Avg_Review_Score` → `Avg Review Score`
+   - `Late_Delivery_Percentage` → `Late Delivery %`
+   - `Repeat_Customer_Percentage` → `Repeat Customer %`
+   - `Avg_Days_to_Close` → `Avg Days to Close`
+   - `Unique_Sellers` → `Unique Sellers`
 
-Use **Modeling → New Query** (DAX Query view) to validate results before persisting:
-1. Open `docs/dax_query_test.dax` → paste sections into DAX Query view
-2. Press **F5** to run each `EVALUATE` block and inspect results
-3. Once validated, run `bulk_measures.cs` in Tabular Editor to persist
+### Method B — Tabular Editor (Recommended for Nice Names)
+
+1. Install [Tabular Editor](https://tabulareditor.com/)
+2. In PBI Desktop: **External Tools → Tabular Editor**
+3. **Advanced Scripting** tab → open `docs/bulk_measures.cs` → **Ctrl+A → F5**
+4. All 13 measures created with spaces in names, formatting, and display folders — done.
 
 ---
 
