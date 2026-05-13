@@ -30,7 +30,6 @@ erDiagram
     dim_channel {
         string channel_id PK
         string channel_name
-        int mql_count
     }
 
     dim_date {

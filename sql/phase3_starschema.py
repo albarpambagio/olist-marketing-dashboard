@@ -55,8 +55,7 @@ def create_marketing_schema():
         CREATE OR REPLACE VIEW olist.dim_channel AS
         SELECT DISTINCT
             origin AS channel_id,
-            origin AS channel_name,
-            COUNT(*) OVER (PARTITION BY origin) AS mql_count
+            origin AS channel_name
         FROM olist.marketing_qualified_leads
         ORDER BY 2;
     """)
