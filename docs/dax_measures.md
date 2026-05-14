@@ -4,23 +4,74 @@
 
 1. **Modeling → New Table** → `Measures = DATATABLE("x", INTEGER, {{1}})` → Delete the column `"x"` (keep the empty table)
 2. **Model View** → Click the **TMDL icon** in the ribbon
-3. Open `docs/bulk_measures.csl` → **Select All → Copy** → Paste into the TMDL editor
+3. **Copy the TMDL script below** → Paste into the TMDL editor
 4. Click **Apply** (top-left corner of TMDL editor)
-5. All 13 measures are created, formatted, and grouped
-6. Go back to **Report view** and rename each measure to add back spaces:
-   - `MQL_Count` → `MQL Count`
-   - `Deals_Won` → `Deals Won`
-   - `Conversion_Rate` → `Conversion Rate`
-   - `Total_Revenue` → `Total Revenue`
-   - `Total_Orders` → `Total Orders`
-   - `Avg_Review_Score` → `Avg Review Score`
-   - `Late_Delivery_Percentage` → `Late Delivery %`
-   - `Repeat_Customer_Percentage` → `Repeat Customer %`
-   - `Avg_Days_to_Close` → `Avg Days to Close`
-   - `Unique_Sellers` → `Unique Sellers`
-   - `AOV` → `AOV` (no change needed)
-   - `LTV_per_MQL` → `LTV per MQL`
-   - `LTV_per_Seller` → `LTV per Seller`
+5. All 13 measures are created, formatted, and grouped — **no renaming needed** (names already have spaces)
+
+```tmdl
+createOrReplace
+
+  table 'Measures'
+
+    /// Total number of marketing qualified leads
+    measure 'MQL Count' = CALCULATE(
+        DISTINCTCOUNT('olist fact_marketing'[mql_id]),
+        AND('olist fact_marketing'[origin] <> "unknown", NOT ISBLANK('olist fact_marketing'[origin]))
+    )
+        formatString: #,##0
+
+    /// MQLs that converted into a seller (have non-null seller_id)
+    measure 'Deals Won' = CALCULATE(
+        DISTINCTCOUNT('olist fact_marketing'[mql_id]),
+        AND('olist fact_marketing'[origin] <> "unknown", NOT ISBLANK('olist fact_marketing'[origin])),
+        NOT ISBLANK('olist fact_marketing'[seller_id])
+    )
+        formatString: #,##0
+
+    /// Percentage of MQLs that became deals
+    measure 'Conversion Rate' = DIVIDE([Deals Won], [MQL Count], 0)
+        formatString: 0.00%
+
+    /// Total revenue from converted leads
+    measure 'Total Revenue' = SUM('olist fact_marketing'[revenue])
+        formatString: $ #,##0.00
+
+    /// Total number of orders placed
+    measure 'Total Orders' = COUNTROWS('olist fact_marketing')
+        formatString: #,##0
+
+    /// Average revenue per order
+    measure 'AOV' = DIVIDE([Total Revenue], [Total Orders], 0)
+        formatString: $ #,##0.00
+
+    /// Lifetime value per marketing qualified lead
+    measure 'LTV per MQL' = DIVIDE([Total Revenue], [MQL Count], 0)
+        formatString: $ #,##0.00
+
+    /// Average revenue per acquired seller
+    measure 'LTV per Seller' = DIVIDE([Total Revenue], [Deals Won], 0)
+        formatString: $ #,##0.00
+
+    /// Average customer review score for orders
+    measure 'Avg Review Score' = AVERAGE('olist fact_marketing'[review_score])
+        formatString: 0.0
+
+    /// Percentage of orders delivered late
+    measure 'Late Delivery %' = DIVIDE(COUNTROWS(FILTER('olist fact_marketing', 'olist fact_marketing'[is_late] = 1)), [Total Orders], 0)
+        formatString: 0.00%
+
+    /// Percentage of orders from repeat customers
+    measure 'Repeat Customer %' = DIVIDE(COUNTROWS(FILTER('olist fact_marketing', 'olist fact_marketing'[is_repeat_customer] = 1)), [Total Orders], 0)
+        formatString: 0.00%
+
+    /// Average days to close a deal from first contact
+    measure 'Avg Days to Close' = AVERAGE('olist fact_marketing'[days_to_close])
+        formatString: 0.0
+
+    /// Count of unique sellers in the marketplace
+    measure 'Unique Sellers' = COUNTROWS('olist dim_seller')
+        formatString: #,##0
+```
 
 ---
 
@@ -28,13 +79,26 @@
 
 ### MQL Count
 ```dax
-MQL Count = COUNTROWS(dim_marketing)
+MQL Count = CALCULATE(
+    DISTINCTCOUNT('olist fact_marketing'[mql_id]),
+    AND('olist fact_marketing'[origin] <> "unknown", NOT ISBLANK('olist fact_marketing'[origin]))
+)
 ```
-Uses `dim_marketing` to avoid double-counting MQLs that expanded to multiple order rows in `fact_marketing`.
+Filters out unknown/blank origins.
 
 ### Deals Won
 ```dax
-Deals Won = COUNTROWS(FILTER(dim_marketing, dim_marketing[seller_id] <> BLANK()))
+Deals Won = CALCULATE(
+    DISTINCTCOUNT('olist fact_marketing'[mql_id]),
+    AND('olist fact_marketing'[origin] <> "unknown", NOT ISBLANK('olist fact_marketing'[origin])),
+    NOT ISBLANK('olist fact_marketing'[seller_id])
+)
+```
+Uses `olist.dim_marketing` with filter to exclude Unknown/NaN origins (matches SQL view logic).
+
+### Deals Won
+```dax
+Deals Won = CALCULATE(DISTINCTCOUNT('olist fact_marketing'[mql_id]), FILTER('olist fact_marketing', 'olist fact_marketing'[seller_id] <> BLANK()))
 ```
 MQLs that converted into a seller (have a non-null `seller_id` from `closed_deals`).
 
@@ -49,12 +113,12 @@ Conversion Rate = DIVIDE([Deals Won], [MQL Count], 0)
 
 ### Total Revenue
 ```dax
-Total Revenue = SUM(fact_marketing[revenue])
+Total Revenue = SUM('olist fact_marketing'[revenue])
 ```
 
 ### Total Orders
 ```dax
-Total Orders = COUNTROWS(fact_marketing)
+Total Orders = COUNTROWS('olist fact_marketing')
 ```
 Each row is one MQL x Order combination.
 
@@ -79,14 +143,14 @@ LTV per Seller = DIVIDE([Total Revenue], [Deals Won], 0)
 
 ### Avg Review Score
 ```dax
-Avg Review Score = AVERAGE(fact_marketing[review_score])
+Avg Review Score = AVERAGE('olist fact_marketing'[review_score])
 ```
 
 ### Late Delivery %
 ```dax
-Late Delivery % = 
+Late Delivery % =
 DIVIDE(
-    COUNTROWS(FILTER(fact_marketing, fact_marketing[is_late] = 1)),
+    COUNTROWS(FILTER('olist fact_marketing', 'olist fact_marketing'[is_late] = 1)),
     [Total Orders],
     0
 )
@@ -94,9 +158,9 @@ DIVIDE(
 
 ### Repeat Customer %
 ```dax
-Repeat Customer % = 
+Repeat Customer % =
 DIVIDE(
-    COUNTROWS(FILTER(fact_marketing, fact_marketing[is_repeat_customer] = 1)),
+    COUNTROWS(FILTER('olist fact_marketing', 'olist fact_marketing'[is_repeat_customer] = 1)),
     [Total Orders],
     0
 )
@@ -104,7 +168,7 @@ DIVIDE(
 
 ### Avg Days to Close
 ```dax
-Avg Days to Close = AVERAGE(fact_marketing[days_to_close])
+Avg Days to Close = AVERAGE('olist fact_marketing'[days_to_close])
 ```
 
 ---
@@ -113,7 +177,7 @@ Avg Days to Close = AVERAGE(fact_marketing[days_to_close])
 
 ### Unique Sellers
 ```dax
-Unique Sellers = COUNTROWS(dim_seller)
+Unique Sellers = COUNTROWS('olist dim_seller')
 ```
 
 ---
@@ -122,11 +186,11 @@ Unique Sellers = COUNTROWS(dim_seller)
 
 | Slicer | Table | Field |
 |--------|-------|-------|
-| Year | `dim_date` | `year` |
-| Channel | `dim_channel` | `channel_name` |
-| Lead Behavior | `dim_marketing` | `lead_behaviour_profile` |
-| Seller State | `dim_seller` | `seller_state` |
-| Seller City | `dim_seller` | `seller_city` |
+| Year | `olist dim_date` | `year` |
+| Channel | `olist dim_channel` | `channel_name` |
+| Lead Behavior | `olist dim_marketing` | `lead_behaviour_profile` |
+| Seller State | `olist dim_seller` | `seller_state` |
+| Seller City | `olist dim_seller` | `seller_city` |
 
 ---
 
@@ -134,10 +198,10 @@ Unique Sellers = COUNTROWS(dim_seller)
 
 | From | To | Cardinality | Key |
 |------|----|-------------|-----|
-| `dim_marketing` | `fact_marketing` | 1:* | `mql_id` |
-| `dim_channel` | `fact_marketing` | 1:* | `origin` (`channel_id`) |
-| `dim_date` | `fact_marketing` | 1:* | `lead_date` → `date_key` |
-| `fact_marketing` | `dim_seller` | *:1 | `seller_id` |
-| `dim_seller` | `fact_orders` | 1:* | `seller_id` |
+| `olist dim_marketing` | `olist fact_marketing` | 1:* | `mql_id` |
+| `olist dim_channel` | `olist fact_marketing` | 1:* | `origin` (`channel_id`) |
+| `olist dim_date` | `olist fact_marketing` | 1:* | `lead_date` → `date_key` |
+| `olist fact_marketing` | `olist dim_seller` | *:1 | `seller_id` |
+| `olist dim_seller` | `olist fact_orders` | 1:* | `seller_id` |
 
-> Only import `fact_orders` if you need drill-through to individual order details. For dashboard-level KPIs, all measures come from `fact_marketing` + `dim_marketing` + `dim_seller`.
+> Only import `olist fact_orders` if you need drill-through to individual order details. For dashboard-level KPIs, all measures come from `olist fact_marketing` + `olist dim_marketing` + `olist dim_seller`.

@@ -45,6 +45,8 @@ python sql/phase3_starschema.py
 python sql/phase4_kpis.py
 # 5. Create funnel analysis + cross-tab views
 python sql/phase5_funnel.py
+# 6. Create profile by channel view (Slide 6)
+python sql/phase7_slide6.py
 ```
 
 ## Development Workflow
@@ -60,6 +62,7 @@ Phase 3: Star Schema  → sql/phase3_starschema.py, logs/phase3_starschema.log.m
 Phase 4: KPIs         → sql/phase4_kpis.py
 Phase 5: Advanced     → sql/phase5_funnel.py (Marketing only)
 Phase 6: Segmentation → sql/phase6_advanced.py (RFM, Cohort)
+Phase 7: Slide 6      → sql/phase7_slide6.py (Profile by Channel)
 ```
 
 ### Working on Each Project
@@ -177,6 +180,9 @@ python sql/phase4_kpis.py
 
 # Check logs
 cat logs/phase2_cleaning_eda.log.md
+
+# Create Slide 6 view
+python sql/phase7_slide6.py
 ```
 
 ## Additional Notes

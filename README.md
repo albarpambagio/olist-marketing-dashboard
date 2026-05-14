@@ -454,6 +454,7 @@ psql -h localhost -p 5433 -d olist -c "SELECT * FROM olist.<view_name>;"
 | `phase3_starschema.py` | Combined star schema (fact_marketing + fact_orders) |
 | `phase4_kpis.py` | Marketing KPIs: MQL volume, conversion rate, LTV by channel |
 | `phase5_funnel.py` | Funnel analysis, lead behavior, time-to-close |
+| `phase7_slide6.py` | Creates vw_profile_by_channel for Lead Quality visuals |
 
 ### Dashboard Pages
 
@@ -484,10 +485,11 @@ python sql/load_data_v2.py
 python sql/phase3_starschema.py
 python sql/phase4_kpis.py
 python sql/phase5_funnel.py
+python sql/phase7_slide6.py
 
 # 3. Connect Power BI
 # Server: localhost:5433, Database: olist
-# Import: fact_marketing, fact_orders, dim_marketing, dim_channel, dim_date
+# Import: fact_marketing, fact_orders, dim_marketing, dim_channel, dim_date, vw_profile_by_channel
 ```
 
 ---
@@ -510,7 +512,8 @@ olist-marketing-dashboard/
 │   ├── phase2_cleaning_eda.py
 │   ├── phase3_starschema.py       # Combined schema
 │   ├── phase4_kpis.py
-│   └── phase5_funnel.py             # Funnel analysis
+│   ├── phase5_funnel.py             # Funnel analysis
+│   └── phase7_slide6.py            # Profile by channel (Slide 6)
 ├── logs/                          # Analysis and data quality logs
 ├── docs/                          # Dashboard guide + DASH framework
 ├── INTERVIEW_TALKING_POINTS.md   # Marketing-specific Q&A

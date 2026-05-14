@@ -103,6 +103,7 @@ The `fact_marketing` view uses `LEFT JOIN` so all MQLs (including non-converting
 | `olist.kpi_time_to_close` | Avg days to close by month | `phase5_funnel.py:121` |
 | `olist.kpi_channel_lead_behavior` | Channel × Lead Behavior cross-tab | `phase5_funnel.py:137` |
 | `olist.kpi_monthly_trend` | MQL volume × conversion × close-time by month | `phase5_funnel.py:200` |
+| `olist.vw_profile_by_channel` | Profile distribution by channel (Slide 6 Wolf chart) | `phase7_slide6.py` |
 
 These are pre-built views. Import directly into Power BI as query tables.
 
@@ -214,6 +215,7 @@ These are pre-built views. Import directly into Power BI as query tables.
 |--------|------|--------|---------------|
 | Profile distribution | Bar | `kpi_lead_behavior` | Axis: lead_group, Value: pct_of_closed_deals |
 | Channel × Behavior cross-tab | Matrix/Heatmap | `kpi_channel_lead_behavior` | Rows: origin, Columns: lead_group, Values: pct_of_channel_deals. Conditional formatting by value |
+| **Wolf Problem** | **100% Stacked Bar** | **`vw_profile_by_channel`** | **Y: origin, Legend: lead_group, Value: deal_count. Color Wolf #d62728, others muted gray. Sort by Wolf % desc** |
 | Time-to-close by profile | Bar | `kpi_time_to_close` sliced by `lead_behaviour_profile` | Axis: lead_group, Value: avg_days_to_close |
 | Profile composition | Donut | `kpi_lead_behavior` | Legend: lead_group, Value: closed_deals |
 

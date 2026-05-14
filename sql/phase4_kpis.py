@@ -74,7 +74,6 @@ def create_kpi_views():
         CREATE VIEW olist.kpi_customer_metrics AS
         SELECT 
             dc.customer_state,
-            dc.region,
             COUNT(DISTINCT fo.customer_id) AS unique_customers,
             COUNT(DISTINCT fo.order_id) AS total_orders,
             ROUND(SUM(fo.revenue)::NUMERIC / COUNT(DISTINCT fo.order_id), 2) AS aov,
@@ -84,8 +83,8 @@ def create_kpi_views():
         FROM olist.fact_orders fo
         JOIN olist.dim_customer dc ON fo.customer_id = dc.customer_id
         LEFT JOIN olist.fact_orders fr ON fo.order_id = fr.order_id
-        GROUP BY 1, 2
-        ORDER BY 3 DESC
+        GROUP BY 1
+        ORDER BY 2 DESC
     """)
     conn.commit()
     print("   kpi_customer_metrics created")
@@ -96,7 +95,6 @@ def create_kpi_views():
         CREATE VIEW olist.kpi_seller_performance AS
         SELECT 
             ds.seller_state,
-            ds.region,
             COUNT(DISTINCT fo.seller_id) AS unique_sellers,
             COUNT(DISTINCT fo.order_id) AS total_orders,
             ROUND(SUM(fo.revenue)::NUMERIC / COUNT(DISTINCT fo.seller_id), 2) AS revenue_per_seller,
@@ -105,8 +103,8 @@ def create_kpi_views():
             ROUND(SUM(CASE WHEN fo.is_late = 1 THEN 1 ELSE 0 END)::NUMERIC / COUNT(*) * 100, 2) AS seller_late_rate_pct
         FROM olist.fact_orders fo
         JOIN olist.dim_seller ds ON fo.seller_id = ds.seller_id
-        GROUP BY 1, 2
-        ORDER BY 3 DESC
+        GROUP BY 1
+        ORDER BY 2 DESC
     """)
     conn.commit()
     print("   kpi_seller_performance created")
