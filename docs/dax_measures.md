@@ -52,8 +52,12 @@ createOrReplace
     measure 'LTV per Seller' = DIVIDE([Total Revenue], [Deals Won], 0)
         formatString: $ #,##0.00
 
-    /// Average customer review score for orders
-    measure 'Avg Review Score' = AVERAGE('olist fact_marketing'[review_score])
+    /// Average customer review score per deal
+    /// Uses AVERAGEX at mql_id level to avoid duplicate counting from LEFT JOIN with fact_orders
+    measure 'Avg Review Score' = AVERAGEX(
+        VALUES('olist fact_marketing'[mql_id]),
+        CALCULATE(AVERAGE('olist fact_marketing'[review_score]))
+    )
         formatString: 0.0
 
     /// Percentage of orders delivered late
@@ -65,7 +69,11 @@ createOrReplace
         formatString: 0.00%
 
     /// Average days to close a deal from first contact
-    measure 'Avg Days to Close' = AVERAGE('olist fact_marketing'[days_to_close])
+    /// Uses AVERAGEX at mql_id level to avoid duplicate counting from LEFT JOIN with fact_orders
+    measure 'Avg Days to Close' = AVERAGEX(
+        VALUES('olist fact_marketing'[mql_id]),
+        CALCULATE(MIN('olist fact_marketing'[days_to_close]))
+    )
         formatString: 0.0
 
     /// Count of unique sellers in the marketplace
@@ -143,7 +151,10 @@ LTV per Seller = DIVIDE([Total Revenue], [Deals Won], 0)
 
 ### Avg Review Score
 ```dax
-Avg Review Score = AVERAGE('olist fact_marketing'[review_score])
+Avg Review Score = AVERAGEX(
+    VALUES('olist fact_marketing'[mql_id]),
+    CALCULATE(AVERAGE('olist fact_marketing'[review_score]))
+)
 ```
 
 ### Late Delivery %
@@ -168,8 +179,12 @@ DIVIDE(
 
 ### Avg Days to Close
 ```dax
-Avg Days to Close = AVERAGE('olist fact_marketing'[days_to_close])
+Avg Days to Close = AVERAGEX(
+    VALUES('olist fact_marketing'[mql_id]),
+    CALCULATE(MIN('olist fact_marketing'[days_to_close]))
+)
 ```
+> **Important:** Must use `AVERAGEX` at `mql_id` level. The `fact_marketing` view uses `LEFT JOIN` with `fact_orders`, creating multiple rows per deal. Using plain `AVERAGE` would count duplicate days_to_close values multiple times, skewing results lower.
 
 ---
 
