@@ -455,6 +455,8 @@ psql -h localhost -p 5433 -d olist -c "SELECT * FROM olist.<view_name>;"
 | `phase4_kpis.py` | Marketing KPIs: MQL volume, conversion rate, LTV by channel |
 | `phase5_funnel.py` | Funnel analysis, lead behavior, time-to-close |
 | `phase7_slide6.py` | Creates vw_profile_by_channel for Lead Quality visuals |
+| `check_velocity.py` | Debug script: analyze velocity metrics by channel |
+| `compare_velocity.py` | Debug script: compare velocity between time periods |
 
 ### Dashboard Pages
 
