@@ -49,6 +49,8 @@ This dashboard supports Olist's Marketing team:
 | Acquisition Managers | Channel performance, lead quality | Channel breakdowns, lead behavior profiles |
 | Sales Ops | Deal closing time, lead-to-seller conversion | Funnel visualization, time-to-close |
 
+**View Presentation:** [Olist Channel Performance Report (Pitch)](https://pitch.com/v/olist-channel-performance-report-ew5t9z)
+
 ### Business Questions Answered
 
 1. **VP Marketing:** Should Olist reallocate 30% of Organic Search budget to Paid Search to maximize LTV per MQL?
@@ -517,9 +519,12 @@ olist-marketing-dashboard/
 │   ├── phase5_funnel.py             # Funnel analysis
 │   └── phase7_slide6.py            # Profile by channel (Slide 6)
 ├── logs/                          # Analysis and data quality logs
-├── docs/                          # Dashboard guide + DASH framework
-├── INTERVIEW_TALKING_POINTS.md   # Marketing-specific Q&A
-├── POLISH_CHECKLIST.md
+├── docs/                          # Dashboard guide + deliverables
+│   ├── marketing.pbix            # Power BI dashboard
+│   ├── olist channel performance report.pdf  # Executive deck
+│   ├── dax_measures.md
+│   ├── powerbi_build_guide.md
+│   └── archive/                  # Deprecated (interview prep, polish checklist)
 └── README.md                      # This file
 ```
 

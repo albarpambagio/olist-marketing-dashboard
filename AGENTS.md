@@ -132,8 +132,12 @@ project/
 ├── data/           # CSV files (add to .gitignore if large)
 ├── sql/            # Python ETL scripts (.py) + SQL files (.sql)
 ├── logs/           # Phase logs (*.log.md) + insights.md
-├── docs/           # Dashboard guide, DASH framework, interview prep
-│   ├── archive/    # Deprecated or historical docs
+├── docs/           # Dashboard guide, DASH framework, deliverables
+│   ├── marketing.pbix              # Power BI dashboard
+│   ├── olist channel performance report.pdf  # Executive deck
+│   ├── dax_measures.md
+│   ├── powerbi_build_guide.md
+│   ├── archive/    # Deprecated (interview prep, polish checklist)
 │   └── SKILL.md    # AI agent skills for this project
 └── README.md       # Stakeholder-facing report
 ```
@@ -144,7 +148,9 @@ project/
 1. Open Power BI Desktop
 2. Get Data → PostgreSQL
 3. Enter connection: `localhost:5433`, database: `olist`
-4. Select views: `fact_orders`, `dim_date`, `dim_product`, `dim_customer`
+4. Select views:
+   - Sales/Ops: `fact_orders`, `dim_date`, `dim_product`, `dim_customer`
+   - Marketing: `fact_marketing`, `dim_marketing`, `dim_channel`, `dim_date`, `vw_profile_by_channel`
 5. Build dashboards using star schema model
 
 ### GitHub Repository
