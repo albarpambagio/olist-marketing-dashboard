@@ -2,6 +2,8 @@
 
 > **Scenario:** This analysis was prepared for **Olist's Q2 2018 Marketing Review**. The deliverable is a **channel strategy brief** supporting the VP Marketing in Q3 2018 budget allocation. The central question: which acquisition channels deliver the highest lifetime value per lead — and should the budget mix change?
 
+**View Report:** [Olist Channel Performance Report (Pitch)](https://pitch.com/v/olist-channel-performance-report-ew5t9z)
+
 ## Table of Contents
 
 - [Background & Overview](#background--overview)
@@ -49,7 +51,6 @@ This dashboard supports Olist's Marketing team:
 | Acquisition Managers | Channel performance, lead quality | Channel breakdowns, lead behavior profiles |
 | Sales Ops | Deal closing time, lead-to-seller conversion | Funnel visualization, time-to-close |
 
-**View Presentation:** [Olist Channel Performance Report (Pitch)](https://pitch.com/v/olist-channel-performance-report-ew5t9z)
 
 ### Business Questions Answered
 
